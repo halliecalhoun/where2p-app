@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
+    <title>Where2P</title>
+    <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16" />
+
+    <!-- CSS  -->
+    <link href="css/reset.css" type="text/css" rel="stylesheet" media="screen,projection" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
+    <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection" />
+</head>
+
+<body>
+
+    <nav class="cyan" role="navigation">
+        <div class="nav-wrapper"><img id="logo-container" src="images/logo.png" class="brand-logo">
+            <ul class="nav right hide-on-med-and-down">
+                <li><a href="#weather-section">Weather</a></li>
+                <li><a href="#search-bar">Search Bar</a></li>
+                <li><a href="#results-section">Results</a></li>
+                <li><a href="#map">Map</a></li>
+            </ul>
+            <ul id="nav-mobile" class="nav sidenav">
+                <li><a href="#weather-section">Weather</a></li>
+                <li><a href="#search-bar">Search Bar</a></li>
+                <li><a href="#results-section">Results</a></li>
+                <li><a href="#map">Map</a></li>
+            </ul>
+            <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        </div>
+    </nav>
+
+    <div class="section">
+        <!-- <div class="row"> -->
+        <!-- <div id="weather-section" class="col s12 m12 l5"> -->
+        <!-- <div class="card-panel grey lighten-5 hoverable"> -->
+        <!-- <h4 class="light-blue-text"><i class="material-icons">wb_sunny</i> Weather</h4> -->
+        <!-- <div id="openweathermap-widget-15"></div> -->
+        <!-- </div> -->
+        <!-- </div> -->
+
+        <div id="search-bar" class="col s6 m12 l7">
+            <!-- <div class="card-panel grey lighten-5 hoverable"> -->
+            <!-- <h4 class="center light-blue-text"> -->
+            <!-- <i class="material-icons">search</i> -->
+            <!-- Search</h4> -->
+            <div class="row">
+                <form class="col s12">
+                    <div class="row">
+                        <div class="input-field col s5">
+                            <input id="address" type="text" class="validate">
+                            <label for="address">Address</label>
+                        </div>
+                        <div class="input-field col s4">
+                            <input id="city" type="text" class="validate">
+                            <label for="city">City</label>
+                        </div>
+                        <div class="input-field col s2">
+                            <select id="state">
+                                        <option value="AL">AL</option>
+                                        <option value="AK">AK</option>
+                                        <option value="AZ">AZ</option>
+                                        <option value="AR">AR</option>
+                                        <option value="CA">CA</option>
+                                        <option value="CO">CO</option>
+                                        <option value="CT">CT</option>
+                                        <option value="DE">DE</option>
+                                        <option value="DC">DC</option>
+                                        <option value="FL">FL</option>
+                                        <option value="GA">GA</option>
+                                        <option value="HI">HI</option>
+                                        <option value="ID">ID</option>
+                                        <option value="IL">IL</option>
+                                        <option value="IN">IN</option>
+                                        <option value="IA">IA</option>
+                                        <option value="KS">KS</option>
+                                        <option value="KY">KY</option>
+                                        <option value="LA">LA</option>
+                                        <option value="ME">ME</option>
+                                        <option value="MD">MD</option>
+                                        <option value="MA">MA</option>
+                                        <option value="MI">MI</option>
+                                        <option value="MN">MN</option>
+                                        <option value="MS">MS</option>
+                                        <option value="MO">MO</option>
+                                        <option value="MT">MT</option>
+                                        <option value="NE">NE</option>
+                                        <option value="NV">NV</option>
+                                        <option value="NH">NH</option>
+                                        <option value="NJ">NJ</option>
+                                        <option value="NM">NM</option>
+                                        <option value="NY">NY</option>
+                                        <option value="NC">NC</option>
+                                        <option value="ND">ND</option>
+                                        <option value="OH">OH</option>
+                                        <option value="OK">OK</option>
+                                        <option value="OR">OR</option>
+                                        <option value="PA">PA</option>
+                                        <option value="RI">RI</option>
+                                        <option value="SC">SC</option>
+                                        <option value="SD">SD</option>
+                                        <option value="TN">TN</option>
+                                        <option value="TX">TX</option>
+                                        <option value="UT">UT</option>
+                                        <option value="VT">VT</option>
+                                        <option value="VA">VA</option>
+                                        <option value="WA">WA</option>
+                                        <option value="WV">WV</option>
+                                        <option value="WI">WI</option>
+                                        <option value="WY">WY</option>
+                                    </select>
+                            <label for="state">State</label>
+                        </div>
+                    </div>
+                    <button id="submit" class="btn-large waves-effect waves-light"><i
+                                    class="material-icons right">location_searching</i>Submit</button>
+                </form>
+            </div>
+            <!-- </div> -->
+        </div>
+        <!-- </div> -->
+        <!-- <div class="row"> -->
+        <!-- <div class="col s6"> -->
+        <!-- <div class="card-panel grey lighten-5 hoverable"> -->
+        <!-- <div id="map"></div> -->
+        <!-- </div> -->
+        <!-- </div> -->
+        <!-- </div> -->
+        <div class="row">
+            <div id="results-section" class="col s12 m6">
+                <!-- <div class="card-panel grey lighten-3 hoverable"> -->
+                <!-- <h4 class="light-blue-text"><i class="material-icons">list</i> Yelp Results</h4> -->
+                <div id="results"></div>
+
+                <!-- </div> -->
+            </div>
+            <div id="map"></div>
+            <div id="results-section2" class="col s6 m6">
+                <!-- <div class="card-panel grey lighten-3 hoverable"> -->
+                <!-- <h4 class="light-blue-text"><i class="material-icons">list</i>  -->
+                <!-- Google Results -->
+                <!-- </h4> -->
+                <div id="map"></div>
+                <!-- <div id="results2"></div> -->
+                <!-- </div> -->
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal" class="popup">
+        <div class="popup-content white lighten">
+            <div class="popup-header">
+                <span class="close">&times;</span>
+                <h3 class="black-text text-darken-4">Review Form</h3>
+            </div>
+            <hr><br>
+            <form>
+                <div class="input-field">
+                    <i class="material-icons prefix">account_box</i>
+                    <input id="userName" type="text" class="validate">
+                    <label for="userName">Name</label>
+                </div>
+                <div class="input-field">
+                    <i class="material-icons prefix">rate_review</i>
+                    <textarea id="userReview" type="text" class="materialize-textarea validate"></textarea>
+                    <label for="userReview">Review</label>
+                </div>
+                <div class="input-field">
+                    <i class="material-icons prefix">sentiment_very_satisfied</i>
+                    <select id="userRating">
+                        <option value="0.5">0.5</option>
+                        <option value="1">1</option>
+                        <option value="1.5">1.5</option>
+                        <option value="2">2</option>
+                        <option value="2.5">2.5</option>
+                        <option value="3">3</option>
+                        <option value="3.5">3.5</option>
+                        <option value="4">4</option>
+                        <option value="4.5">4.5</option>
+                        <option value="5">5</option>
+                    </select>
+                    <label for="rating">Rating</label>
+                </div>
+                <button id="submit-review" class="btn-large waves-effect waves-light">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="myModal2" class="popup">
+        <div class="popup-content white lighten">
+            <div class="popup-header">
+                <span class="close2">&times;</span>
+                <h3 class="black-text text-darken-4">Reviews</h3>
+            </div>
+            <hr><br>
+            <div id="reviews-list"></div>
+        </div>
+    </div>
+
+    <!--  Scripts-->
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="js/materialize.js"></script>
+    <script src="js/init.js"></script>
+    <script src="js/app.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAz23lQswC8r0KGNmRE09W2dzLYVeqWoT0&callback=initMap" async defer></script>
+
+</body>
+
+</html>

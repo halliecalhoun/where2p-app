@@ -1,0 +1,231 @@
+/* Custom Stylesheet */
+
+
+/**
+ * Use this file to override Materialize files so you can update
+ * the core Materialize files in the future
+ *
+ * Made By MaterializeCSS.com
+ */
+
+.icon-block {
+    padding: 0 15px;
+}
+
+.icon-block .material-icons {
+    font-size: inherit;
+}
+
+html,
+body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    margin: 0;
+}
+
+#logo-container {
+    max-height: 100%;
+    padding: 8px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-large {
+    background-color: white;
+    border: 1px solid #80cbc4;
+    color: #80cbc4;
+    box-shadow: none;
+    border-radius: 8px;
+}
+
+.btn-large:hover {
+    background-image: none;
+    background-color: #80cbc4;
+    color: black;
+    border: 1px solid black;
+    box-shadow: none;
+}
+
+#map {
+    position: fixed;
+    height: 500px;
+    width: auto;
+    border-radius: 8px;
+}
+
+.results-div {
+    margin-top: 15px;
+    display: margin-bottom: 15px;
+    padding: 5px;
+    box-shadow: none;
+}
+
+.results-div:hover {
+    background-color: white;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 5px;
+    box-shadow: none;
+}
+
+.placeImg {
+    width: 175px;
+    height: 175px;
+    float: left;
+    margin-right: 20px;
+    border-radius: 12px;
+    border: none;
+}
+
+.submit-form {
+    float: left;
+}
+
+.widget-right {
+    width: 100% !important;
+}
+
+.business {
+    font-size: 22px;
+    border-bottom: 1px solid #9e9e9e;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 18px;
+    text-align: start;
+    margin-bottom: 10px;
+}
+
+.reviews {
+    margin-right: 10px;
+}
+
+.bigger {
+    color: white;
+    font-size: 30px;
+}
+
+#results,
+#results2 {
+    text-align: center;
+}
+
+#search-bar,
+#weather-section,
+#results-section,
+#results-section2,
+#map {
+    transition: all 0.3s linear;
+    border-width: 5px;
+    border-radius: 5px;
+    border-style: solid;
+    border-color: transparent;
+}
+
+#search-bar:hover,
+#weather-section:hover,
+#results-section:hover,
+#results-section2:hover,
+#map:hover {
+    /* border-color: #80cbc4; */
+}
+
+.material-icons {
+    font-size: 30px;
+}
+
+#results,
+#results2 {
+    max-height: 450px;
+    overflow: auto;
+}
+
+#results::-webkit-scrollbar-thumb,
+#results2::-webkit-scrollbar-thumb {
+    outline: 1px solid slategrey;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.popup-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+    border-radius: 12px;
+}
+
+
+/* Add Animation */
+
+@-webkit-keyframes animatetop {
+    from {
+        top: -300px;
+        opacity: 0
+    }
+    to {
+        top: 0;
+        opacity: 1
+    }
+}
+
+@keyframes animatetop {
+    from {
+        top: -300px;
+        opacity: 0
+    }
+    to {
+        top: 0;
+        opacity: 1
+    }
+}
+
+.close,
+.close2 {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close2:hover,
+.close:focus,
+.close2:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
