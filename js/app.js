@@ -107,7 +107,7 @@ function initMap() {
                     lat: pos.lat,
                     lng: pos.lng
                 },
-                zoom: 5
+                zoom: 15
             });
 
             var marker = new google.maps.Marker({
