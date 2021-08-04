@@ -57,8 +57,9 @@
     <div class="body-container">
         <div id="search-bar" class="col s12 m12 l7">
             <div class="row" id="row1">
-                <form class="form-wrapper col s12">
-                    <div class="row">
+                <form class="form-wrapper col s8 m8">
+                    <h3 class="heading">Search</h3>
+                    <div class="row" id="form-row">
                         <div class="input-field col s5">
                             <input id="address" type="text" class="validate">
                             <label for="address">Address</label>
@@ -123,9 +124,10 @@
                                     </select>
                             <label for="state">State</label>
                         </div>
+                        <button id="submit" class="btn-large waves-effect waves-light">
+                            <!-- <iclass="material-icons right">location_searching</i> -->
+                            Submit</button>
                     </div>
-                    <button id="submit" class="btn-large waves-effect waves-light"><i
-                                    class="material-icons right">location_searching</i>Submit</button>
                 </form>
 
             </div>
@@ -134,10 +136,12 @@
         </div>
         <div class="row">
             <div id="results-section" class="col s12 m6">
+                <h3 class="heading">Results</h3>
                 <div id="results"></div>
             </div>
             <div id="map"></div>
             <div id="results-section2" class="col s6 m6">
+                <!-- <h3 class="heading">Results Map View</h3> -->
                 <div id="map"></div>
             </div>
         </div>
