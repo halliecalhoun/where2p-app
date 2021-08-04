@@ -145,8 +145,8 @@ p {
 }
 
 .bigger {
-    color: white;
-    font-size: 30px;
+    color: black;
+    font-size: 18px;
 }
 
 #results,
@@ -189,6 +189,11 @@ p {
 #results-section2:hover,
 #map:hover {
     /* border-color: #80cbc4; */
+}
+
+#reviews-list {
+    color: black;
+    font-size: 18px;
 }
 
 .material-icons {
