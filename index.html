@@ -17,7 +17,15 @@
 <body>
 
     <nav class="cyan" role="navigation">
-        <div class="nav-wrapper"><img id="logo-container" src="images/logo.png" class="brand-logo">
+        <div class="logo-wrapper">
+            <img id="logo-container" src="images/logo.png" class="brand-logo" />
+
+            <p class="slogan">where 2 go on the go</p>
+        </div>
+        <div class="nav-wrapper">
+            <!-- <div> -->
+
+            <!-- </div> -->
             <ul class="nav right hide-on-med-and-down">
                 <li><a href="#weather-section">Weather</a></li>
                 <li><a href="#search-bar">Search Bar</a></li>
@@ -34,22 +42,25 @@
         </div>
     </nav>
 
-    <div class="section">
-        <!-- <div class="row"> -->
-        <!-- <div id="weather-section" class="col s12 m12 l5"> -->
-        <!-- <div class="card-panel grey lighten-5 hoverable"> -->
-        <!-- <h4 class="light-blue-text"><i class="material-icons">wb_sunny</i> Weather</h4> -->
-        <!-- <div id="openweathermap-widget-15"></div> -->
-        <!-- </div> -->
-        <!-- </div> -->
-
-        <div id="search-bar" class="col s6 m12 l7">
+    <!-- <div class="section"> -->
+    <!-- <div class="row"> -->
+    <!-- <div id="weather-section" class="col s4 l5"> -->
+    <!-- <a href="https://www.producthunt.com/posts/where2p?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-where2p" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=306530&theme=light" alt="Where2p - Where 2 go on the go | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a> -->
+    <!-- <iframe style="border: none;" src="https://cards.producthunt.com/cards/posts/306530?v=1" width="500" height="405" frameborder="0" scrolling="no" allowfullscreen></iframe> -->
+    <!-- <div class="card-panel grey lighten-5 hoverable"> -->
+    <!-- <h4 class="light-blue-text"><i class="material-icons">wb_sunny</i> Weather</h4> -->
+    <!-- <div id="openweathermap-widget-15"></div> -->
+    <!-- </div> -->
+    <!-- </div> -->
+    <div class="body-container">
+        <div id="search-bar" class="col s12 m12 l7">
             <!-- <div class="card-panel grey lighten-5 hoverable"> -->
             <!-- <h4 class="center light-blue-text"> -->
             <!-- <i class="material-icons">search</i> -->
             <!-- Search</h4> -->
-            <div class="row">
-                <form class="col s12">
+            <div class="row" id="row1">
+                <!-- <p class="search-label">Search</p> -->
+                <form class="form-wrapper col s12">
                     <div class="row">
                         <div class="input-field col s5">
                             <input id="address" type="text" class="validate">
@@ -119,7 +130,9 @@
                     <button id="submit" class="btn-large waves-effect waves-light"><i
                                     class="material-icons right">location_searching</i>Submit</button>
                 </form>
+                <a href="https://www.producthunt.com/posts/where2p?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-where2p" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=306530&theme=light" alt="Where2p - Where 2 go on the go | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
             </div>
+
             <!-- </div> -->
         </div>
         <!-- </div> -->
@@ -200,7 +213,7 @@
             <div id="reviews-list"></div>
         </div>
     </div>
-
+    </div>
     <!--  Scripts-->
     <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
