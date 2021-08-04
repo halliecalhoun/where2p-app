@@ -23,6 +23,10 @@ body {
     padding: 0;
 }
 
+.body-container {
+    padding: 20px;
+}
+
 h1,
 h2,
 h3,
@@ -34,8 +38,23 @@ p {
 }
 
 #logo-container {
-    max-height: 100%;
-    padding: 8px;
+    max-height: 42px;
+    padding: 0 8px;
+    display: flex;
+    position: relative;
+}
+
+.slogan {
+    /* text-transform: uppercase; */
+    font-style: italic;
+    font-weight: 300;
+    /* font-weight: bold; */
+    padding: 0;
+    margin: 0;
+    line-height: normal;
+    font-size: 14px;
+    letter-spacing: 1.1 5px;
+    display: flex;
 }
 
 .container {
@@ -63,14 +82,20 @@ p {
     position: fixed;
     height: 500px;
     width: auto;
-    border-radius: 8px;
+    border-radius: 14px;
 }
 
 .results-div {
     margin-top: 15px;
-    display: margin-bottom: 15px;
+    /* display: flex; */
+    margin-bottom: 15px;
     padding: 5px;
     box-shadow: none;
+}
+
+.input-field {
+    margin-bottom: 4px;
+    margin-left: 0;
 }
 
 .results-div:hover {
@@ -92,6 +117,10 @@ p {
 
 .submit-form {
     float: left;
+}
+
+.form-wrapper {
+    margin-left: 0;
 }
 
 .widget-right {
@@ -125,6 +154,22 @@ p {
     text-align: center;
 }
 
+#row1 {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    padding: 20px 0;
+    margin-left: 0;
+}
+
+#search-bar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.search-label {}
+
 #search-bar,
 #weather-section,
 #results-section,
@@ -135,6 +180,7 @@ p {
     border-radius: 5px;
     border-style: solid;
     border-color: transparent;
+    border-radius: 12px;
 }
 
 #search-bar:hover,
@@ -186,6 +232,29 @@ p {
     animation-name: animatetop;
     animation-duration: 0.4s;
     border-radius: 12px;
+}
+
+nav {
+    box-shadow: none !important;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+}
+
+.nav-wrapper {
+    box-shadow: none !important;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 
