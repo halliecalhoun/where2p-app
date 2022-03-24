@@ -356,7 +356,7 @@ function initMapOnSubmit(address, city, state) {
                 addReview.text("Add Review");
                 newDiv.append(name, imageDiv, isOpen, rating, seeReview, addReview);
 
-                $("#results").append(newDiv);
+                $("#results2").append(newDiv);
             }
         });
 
