@@ -1,5 +1,5 @@
 /* Custom Stylesheet */
-@import "style.scss";
+
 
 /**
  * Use this file to override Materialize files so you can update
@@ -8,7 +8,7 @@
  * Made By MaterializeCSS.com
  */
 
-.icon-block {
+ .icon-block {
     padding: 0 15px;
 }
 
@@ -26,8 +26,6 @@ body {
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
     letter-spacing: normal;
-    position: relative;
-    position: inherit;
 }
 
 .body-container {
@@ -62,7 +60,6 @@ h3.heading {
     /* color: #f8f8f8; */
     /* font-weight: 300; */
     letter-spacing: .5px;
-    margin-bottom: 10px;
 }
 
 .slogan {
@@ -91,7 +88,7 @@ h3.heading {
     color: #00bcd4;
     box-shadow: none;
     border-radius: 6px;
-    /* display: flex; */
+    display: flex;
 }
 
 .btn-large {
@@ -106,36 +103,35 @@ h3.heading {
     text-transform: none;
     letter-spacing: normal;
     font-weight: 300;
-    max-width: 100px;
-    min-width: 80px;
+
+   :nth-child(1) {
+        background-color: white;
+        /* border: 1px solid #80cbc4; */
+        border: 1px solid #00bcd4;
+        /* color: #80cbc4; */
+        color: #00bcd4;
+        box-shadow: none;
+        border-radius: 6px;
+        display: flex;
+    }
 }
 
-.btn-link {
-    padding: 0;
-    background-color: none;
-    background: none;
-    text-decoration: underline;
+button.btn-large:nth-child(1) {
+    background-color: white;
+    /* border: 1px solid #80cbc4; */
+    border: 1px solid #00bcd4;
+    /* color: #80cbc4; */
     color: #00bcd4;
-    border: none;
-    border-radius: none;
-    margin: 2px;
-
+    box-shadow: none;
+    border-radius: 6px;
+    display: flex;
 }
 
 #map {
-    position: relative;
+    position: fixed;
     height: 500px;
-    max-width: 100%;
+    width: auto;
     border-radius: 14px;
-
-    display: flex;
-    flex: 3;
-    position: fixed;
-    overflow: unset;
-}
-
-.map {
-    position: fixed;
 }
 
 .results-div {
@@ -144,8 +140,6 @@ h3.heading {
     margin-bottom: 15px;
     padding: 5px;
     box-shadow: none;
-    /* display: flex; */
-    /* flex: 1; */
 }
 
 .input-field {
@@ -162,14 +156,12 @@ h3.heading {
 }
 
 .placeImg {
-    width: 90px;
-    height: 90px;
+    width: 175px;
+    height: 175px;
     float: left;
-    /* margin-right: 20px; */
+    margin-right: 20px;
     border-radius: 12px;
-    border-radius: 50%;
     border: none;
-    margin: 5px;
 }
 
 .submit-form {
@@ -193,14 +185,10 @@ h3.heading {
 }
 
 .business {
-    /* font-size: 22px; */
-    /* border-bottom: 1px solid #9e9e9e; */
-    /* padding-bottom: 10px; */
-    /* margin-bottom: 20px; */
-}
-
-.map-row {
-    position: relative;
+    font-size: 22px;
+    border-bottom: 1px solid #9e9e9e;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 #form-row {
@@ -211,8 +199,8 @@ h3.heading {
 
 
 p {
-    /* font-size: 18px; */
-    /* text-align: start; */
+    font-size: 18px;
+    text-align: start;
     margin-bottom: 10px;
 }
 
@@ -228,27 +216,6 @@ p {
 #results,
 #results2 {
     text-align: center;
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    flex: 2;
-    overflow: auto;
-}
-
-.card-panel {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    text-align: center;
-    align-items: center;
-    border: 1px solid lightgray;
-    border-radius: 6px;
-    padding: 20px;
-    width: 250px;
-    justify-content: center;
-    min-height: 250px;
 }
 
 #row1 {
@@ -300,7 +267,7 @@ p {
 #results,
 #results2 {
     max-height: 450px;
-    /* overflow: auto; */
+    overflow: auto;
 }
 
 #results::-webkit-scrollbar-thumb,
@@ -367,7 +334,6 @@ nav {
         top: -300px;
         opacity: 0
     }
-
     to {
         top: 0;
         opacity: 1
@@ -379,7 +345,6 @@ nav {
         top: -300px;
         opacity: 0
     }
-
     to {
         top: 0;
         opacity: 1
@@ -407,59 +372,23 @@ nav {
     padding: 0px;
 }
 
-.row-main {}
-
 @media only screen and (max-width: 600px) {
-    .form-wrapper {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100%;
+    #form-row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
     }
 
-    .input-field {
+   .input-field {
         /* display: flex; */
         /* flex-direction: column; */
         width: 100%;
-        /* height: 100%; */
-        padding: 0 10px;
-        margin: 10px 5px 5px 5px;
-
-    }
-
-    .row .col.s12 {
-        padding: 0px;
-    }
-
-    .card-panel {
-        width: 100%;
-    }
-
-    #results-section {
-        display: flex;
-        flex: 100%;
         height: 100%;
-    }
-
-    #results {
-        overflow: unset;
-    }
-
-    #map {
-        flex: 100%;
-    }
-
-    .row2 {
-        display: block !important;
-    }
-}
-
-.row2 {
-    display: flex;
-    flex-direction: row-reverse;
-}
-
-#results-section {
-    display: flex;
-    flex: 2;
+        padding: 0 10px;
+        margin: 5px;
+   }
+   .row .col.s12 {
+        padding: 0px;
+        }
 }

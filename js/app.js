@@ -164,21 +164,23 @@ function initMap() {
                     });
                     marker.setMap(map);
                     var newDiv = $("<div>").addClass('row results-div card-panel lighten-5');
-                    var addReview = $("<button>").addClass("btn-large waves-effect waves-light reviews");
+                    var addReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
                     var id = response.businesses[i].id;
-                    var rating = $("<p>").text("Rating: " + response.businesses[i].rating);
+                    var rating = $("<span>").text("| Rating: " + response.businesses[i].rating);
                     var imageDiv = $("<img>").attr('src', response.businesses[i].image_url);
                     imageDiv.addClass("placeImg");
                     var isOpen;
-                    var name = $("<p>").text(response.businesses[i].name).addClass("business");
+                    var name = $("<h6>").text(response.businesses[i].name).addClass("business");
 
                     if (response.businesses[i].is_closed === false) {
-                        isOpen = $("<p>").text("Open!");
+                        isOpen = $("<p>").text("Open Now");
+                        isOpen.addClass("open");
                     } else {
-                        isOpen = $("<p>").text("Closed!");
+                        isOpen = $("<p>").text("Closed Now");
+                        isOpen.addClass("closed");
                     }
 
-                    var seeReview = $("<button>").addClass("btn-large waves-effect waves-light reviews");
+                    var seeReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
                     seeReview.attr("data-id", id);
                     seeReview.css({ float: "left" });
                     seeReview.addClass('see-reviews');
@@ -229,13 +231,13 @@ function initMap() {
                         imageDiv.attr('src', photoURL);
                         var id = response.results[i].place_id;
 
-                        var seeReview = $("<button>").addClass("btn-large waves-effect waves-light reviews");
+                        var seeReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
                         seeReview.attr("data-id", id);
                         seeReview.css({ float: "left" });
                         seeReview.addClass('see-reviews');
                         seeReview.text("See Reviews");
 
-                        var addReview = $("<button>").addClass("btn-large waves-effect waves-light reviews");
+                        var addReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
                         addReview.attr("data-id", id);
                         addReview.css({ float: "left" });
                         addReview.addClass('add-review');
@@ -243,7 +245,7 @@ function initMap() {
 
                         newDiv.append(name, imageDiv, rating, seeReview, addReview);
 
-                        $("#results2").append(newDiv);
+                        $("#results").append(newDiv);
                     }
                 }
             });
@@ -327,20 +329,22 @@ function initMapOnSubmit(address, city, state) {
                 var newDiv = $("<div>");
                 newDiv.addClass('row results-div card-panel lighten-5')
                 var addReview = $("<button>");
-                addReview.addClass("btn-large waves-effect waves-light reviews");
+                addReview.addClass("btn-link waves-effect waves-light btn-link reviews");
                 var rating = $("<p>").text("Rating: " + response.businesses[i].rating);
                 var imageDiv = $("<img>").addClass("placeImg");
                 imageDiv.attr('src', response.businesses[i].image_url);
-                var name = $("<p>").text(response.businesses[i].name);
+                var name = $("<h6>").text(response.businesses[i].name);
                 name.addClass("business");
                 var id = response.businesses[i].id;
                 var isOpen;
                 if (response.businesses[i].is_closed === false) {
-                    isOpen = $("<p>").text("Open!");
+                    isOpen = $("<p>").text("Open Now");
+                    isOpen.addClass("open");
                 } else {
-                    isOpen = $("<p>").text("Closed!");
+                    isOpen = $("<p>").text("Closed Now");
+                    isOpen.addClass("closed");
                 }
-                var seeReview = $("<button>").addClass("btn-large waves-effect waves-light reviews");
+                var seeReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
                 seeReview.attr("data-id", id);
                 seeReview.css({ float: "left" });
                 seeReview.addClass('see-reviews');
@@ -386,17 +390,18 @@ function initMapOnSubmit(address, city, state) {
                     imageDiv.attr('src', photoURL);
                     var name = $("<p>").text(response.results[i].name);
                     var rating = $("<p>").text("Rating: " + response.results[i].rating);
+                    rating.addClass("rating");
                     name.addClass("business");
 
                     var id = response.results[i].place_id;
 
-                    var seeReview = $("<button>").addClass("btn-large waves-effect waves-light reviews");
+                    var seeReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
                     seeReview.attr("data-id", id);
                     seeReview.css({ float: "left" });
                     seeReview.addClass('see-reviews');
                     seeReview.text("See Reviews");
 
-                    var addReview = $("<button>").addClass("btn-large waves-effect waves-light reviews");
+                    var addReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
                     addReview.attr("data-id", id);
                     addReview.css({ float: "left" });
                     addReview.addClass('add-review');
@@ -404,7 +409,7 @@ function initMapOnSubmit(address, city, state) {
 
                     newDiv.append(name, imageDiv, rating, seeReview, addReview);
 
-                    $("#results2").append(newDiv);
+                    $("#results").append(newDiv);
                 }
             }
         });

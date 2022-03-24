@@ -7,6 +7,12 @@
     <title>Where2P</title>
     <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+
     <!-- CSS  -->
     <link href="css/reset.css" type="text/css" rel="stylesheet" media="screen,projection" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -24,6 +30,25 @@
         gtag('js', new Date());
         gtag('config', 'G-K43HMJTG24');
     </script>
+
+    <!-- Start Hotjar Tracking Code for https://halliecalhoun.github.io/where2p-app/ -->
+    <script>
+        (function (h, o, t, j, a, r) {
+            h.hj = h.hj || function () {
+                (h.hj.q = h.hj.q || []).push(arguments)
+            };
+            h._hjSettings = {
+                hjid: 2892460,
+                hjsv: 6
+            };
+            a = o.getElementsByTagName('head')[0];
+            r = o.createElement('script');
+            r.async = 1;
+            r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+            a.appendChild(r);
+        })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+    </script>
+    <!-- End hotjar tracking code -->
 </head>
 
 <body>
@@ -35,9 +60,6 @@
             <p class="slogan">where 2 go on the go</p>
         </div>
         <div class="nav-wrapper">
-            <!-- <div> -->
-
-            <!-- </div> -->
             <ul class="nav right hide-on-med-and-down">
                 <li><a href="#weather-section">Weather</a></li>
                 <li><a href="#search-bar">Search Bar</a></li>
@@ -55,97 +77,93 @@
     </nav>
 
     <div class="body-container">
-        <div id="search-bar" class="col s12 m12 l7">
+        <div id="search-bar" class="col s12 m12 l12">
             <div class="row" id="row1">
-                <form class="form-wrapper col s8 m8">
-                    <h3 class="heading">Search</h3>
-                    <div class="row" id="form-row">
-                        <div class="input-field col s5">
-                            <input id="address" type="text" class="validate">
-                            <label for="address">Address</label>
-                        </div>
-                        <div class="input-field col s4">
-                            <input id="city" type="text" class="validate">
-                            <label for="city">City</label>
-                        </div>
-                        <div class="input-field col s2">
-                            <select id="state">
-                                        <option value="AL">AL</option>
-                                        <option value="AK">AK</option>
-                                        <option value="AZ">AZ</option>
-                                        <option value="AR">AR</option>
-                                        <option value="CA">CA</option>
-                                        <option value="CO">CO</option>
-                                        <option value="CT">CT</option>
-                                        <option value="DE">DE</option>
-                                        <option value="DC">DC</option>
-                                        <option value="FL">FL</option>
-                                        <option value="GA">GA</option>
-                                        <option value="HI">HI</option>
-                                        <option value="ID">ID</option>
-                                        <option value="IL">IL</option>
-                                        <option value="IN">IN</option>
-                                        <option value="IA">IA</option>
-                                        <option value="KS">KS</option>
-                                        <option value="KY">KY</option>
-                                        <option value="LA">LA</option>
-                                        <option value="ME">ME</option>
-                                        <option value="MD">MD</option>
-                                        <option value="MA">MA</option>
-                                        <option value="MI">MI</option>
-                                        <option value="MN">MN</option>
-                                        <option value="MS">MS</option>
-                                        <option value="MO">MO</option>
-                                        <option value="MT">MT</option>
-                                        <option value="NE">NE</option>
-                                        <option value="NV">NV</option>
-                                        <option value="NH">NH</option>
-                                        <option value="NJ">NJ</option>
-                                        <option value="NM">NM</option>
-                                        <option value="NY">NY</option>
-                                        <option value="NC">NC</option>
-                                        <option value="ND">ND</option>
-                                        <option value="OH">OH</option>
-                                        <option value="OK">OK</option>
-                                        <option value="OR">OR</option>
-                                        <option value="PA">PA</option>
-                                        <option value="RI">RI</option>
-                                        <option value="SC">SC</option>
-                                        <option value="SD">SD</option>
-                                        <option value="TN">TN</option>
-                                        <option value="TX">TX</option>
-                                        <option value="UT">UT</option>
-                                        <option value="VT">VT</option>
-                                        <option value="VA">VA</option>
-                                        <option value="WA">WA</option>
-                                        <option value="WV">WV</option>
-                                        <option value="WI">WI</option>
-                                        <option value="WY">WY</option>
-                                    </select>
-                            <label for="state">State</label>
-                        </div>
-                        <button id="submit" class="btn-large waves-effect waves-light">
-                            <!-- <iclass="material-icons right">location_searching</i> -->
-                            Submit</button>
+                <h3 class="heading">Search</h3>
+
+                <form class="form-wrapper col s12 l12">
+                    <!-- <div class="row" id="form-row"> -->
+                    <div class="input-field col l5 s12">
+                        <input id="address" type="text" class="validate">
+                        <label for="address">Address</label>
                     </div>
+                    <div class="input-field col l3 s12">
+                        <input id="city" type="text" class="validate">
+                        <label for="city">City</label>
+                    </div>
+                    <div class="input-field col l2 s12">
+                        <select id="state">
+                            <option value="AL">AL</option>
+                            <option value="AK">AK</option>
+                            <option value="AZ">AZ</option>
+                            <option value="AR">AR</option>
+                            <option value="CA">CA</option>
+                            <option value="CO">CO</option>
+                            <option value="CT">CT</option>
+                            <option value="DE">DE</option>
+                            <option value="DC">DC</option>
+                            <option value="FL">FL</option>
+                            <option value="GA">GA</option>
+                            <option value="HI">HI</option>
+                            <option value="ID">ID</option>
+                            <option value="IL">IL</option>
+                            <option value="IN">IN</option>
+                            <option value="IA">IA</option>
+                            <option value="KS">KS</option>
+                            <option value="KY">KY</option>
+                            <option value="LA">LA</option>
+                            <option value="ME">ME</option>
+                            <option value="MD">MD</option>
+                            <option value="MA">MA</option>
+                            <option value="MI">MI</option>
+                            <option value="MN">MN</option>
+                            <option value="MS">MS</option>
+                            <option value="MO">MO</option>
+                            <option value="MT">MT</option>
+                            <option value="NE">NE</option>
+                            <option value="NV">NV</option>
+                            <option value="NH">NH</option>
+                            <option value="NJ">NJ</option>
+                            <option value="NM">NM</option>
+                            <option value="NY">NY</option>
+                            <option value="NC">NC</option>
+                            <option value="ND">ND</option>
+                            <option value="OH">OH</option>
+                            <option value="OK">OK</option>
+                            <option value="OR">OR</option>
+                            <option value="PA">PA</option>
+                            <option value="RI">RI</option>
+                            <option value="SC">SC</option>
+                            <option value="SD">SD</option>
+                            <option value="TN">TN</option>
+                            <option value="TX">TX</option>
+                            <option value="UT">UT</option>
+                            <option value="VT">VT</option>
+                            <option value="VA">VA</option>
+                            <option value="WA">WA</option>
+                            <option value="WV">WV</option>
+                            <option value="WI">WI</option>
+                            <option value="WY">WY</option>
+                        </select>
+                        <label for="state">State</label>
+                    </div>
+                    <button id="submit" class="btn-large waves-effect waves-light col l2 s12">
+                        <!-- <iclass="material-icons right">location_searching</i> -->
+                        Search</button>
+                    <!-- </div> -->
                 </form>
-
             </div>
 
-            <!-- </div> -->
         </div>
-        <div class="row">
-            <div id="results-section" class="col s12 m5">
-                <h3 class="heading">Results</h3>
+        <div class="row row2">
+            <div id="map" class="map"></div>
+            <div id="results-section" class="col s12">
+                <!-- <h3 class="heading">Results</h3> -->
                 <div id="results"></div>
-            </div>
-            <div id="map"></div>
-            <div id="results-section2" class="col s12 m7">
-                <div id="map"></div>
+                <!-- <div id="results2"></div> -->
             </div>
         </div>
     </div>
-
     <div id="myModal" class="popup">
         <div class="popup-content white lighten">
             <div class="popup-header">
@@ -195,7 +213,7 @@
             <div id="reviews-list"></div>
         </div>
     </div>
-    </div>
+    <!-- </div> -->
     <!--  Scripts-->
     <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
@@ -203,7 +221,8 @@
     <script src="js/materialize.js"></script>
     <script src="js/init.js"></script>
     <script src="js/app.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAz23lQswC8r0KGNmRE09W2dzLYVeqWoT0&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAz23lQswC8r0KGNmRE09W2dzLYVeqWoT0&callback=initMap"
+        async defer></script>
 
 </body>
 
