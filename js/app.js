@@ -166,17 +166,18 @@ function initMap() {
                     var newDiv = $("<div>").addClass('row results-div card-panel lighten-5');
                     var addReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
                     var id = response.businesses[i].id;
-                    var rating = $("<span>").text("| Rating: " + response.businesses[i].rating);
+                    var rating = $("<p>").text("Rating: " + response.businesses[i].rating);
+                    rating.addClass("rating");
                     var imageDiv = $("<img>").attr('src', response.businesses[i].image_url);
                     imageDiv.addClass("placeImg");
                     var isOpen;
                     var name = $("<h6>").text(response.businesses[i].name).addClass("business");
 
                     if (response.businesses[i].is_closed === false) {
-                        isOpen = $("<p>").text("Open Now");
+                        isOpen = $("<p>").text(" | Open Now");
                         isOpen.addClass("open");
                     } else {
-                        isOpen = $("<p>").text("Closed Now");
+                        isOpen = $("<p>").text(" | Closed Now");
                         isOpen.addClass("closed");
                     }
 
@@ -191,7 +192,7 @@ function initMap() {
                     addReview.addClass('add-review');
                     addReview.text("Add Review");
 
-                    newDiv.append(name, imageDiv, isOpen, rating, seeReview, addReview);
+                    newDiv.append(name, imageDiv, rating, isOpen, seeReview, addReview);
 
                     $("#results").append(newDiv);
                 }
@@ -224,8 +225,9 @@ function initMap() {
 
                         var newDiv = $("<div>");
                         newDiv.addClass('row results-div card-panel lighten-5');
-                        var name = $("<p>").text(response.results[i].name);
+                        var name = $("<h6>").text(response.results[i].name);
                         var rating = $("<p>").text("Rating: " + response.results[i].rating);
+                        rating.addClass("rating");
                         name.addClass("business");
                         var imageDiv = $("<img>").addClass("placeImg");
                         imageDiv.attr('src', photoURL);
@@ -331,6 +333,7 @@ function initMapOnSubmit(address, city, state) {
                 var addReview = $("<button>");
                 addReview.addClass("btn-link waves-effect waves-light btn-link reviews");
                 var rating = $("<p>").text("Rating: " + response.businesses[i].rating);
+                rating.addClass("rating");
                 var imageDiv = $("<img>").addClass("placeImg");
                 imageDiv.attr('src', response.businesses[i].image_url);
                 var name = $("<h6>").text(response.businesses[i].name);
@@ -338,10 +341,10 @@ function initMapOnSubmit(address, city, state) {
                 var id = response.businesses[i].id;
                 var isOpen;
                 if (response.businesses[i].is_closed === false) {
-                    isOpen = $("<p>").text("Open Now");
+                    isOpen = $("<p>").text(" | Open Now");
                     isOpen.addClass("open");
                 } else {
-                    isOpen = $("<p>").text("Closed Now");
+                    isOpen = $("<p>").text(" | Closed Now");
                     isOpen.addClass("closed");
                 }
                 var seeReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
@@ -354,7 +357,7 @@ function initMapOnSubmit(address, city, state) {
                 addReview.css({ float: "left" });
                 addReview.addClass('add-review');
                 addReview.text("Add Review");
-                newDiv.append(name, imageDiv, isOpen, rating, seeReview, addReview);
+                newDiv.append(name, imageDiv, rating, isOpen, seeReview, addReview);
 
                 $("#results2").append(newDiv);
             }
@@ -388,7 +391,7 @@ function initMapOnSubmit(address, city, state) {
                     newDiv.addClass('row results-div card-panel lighten-5');
                     var imageDiv = $("<img>").addClass("placeImg");
                     imageDiv.attr('src', photoURL);
-                    var name = $("<p>").text(response.results[i].name);
+                    var name = $("<h6>").text(response.results[i].name);
                     var rating = $("<p>").text("Rating: " + response.results[i].rating);
                     rating.addClass("rating");
                     name.addClass("business");

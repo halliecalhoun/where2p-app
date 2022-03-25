@@ -75,31 +75,40 @@
             <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
         </div>
     </nav>
+    <!-- <div class="map-wrapper"> -->
 
+    <!-- <div id="fixed" style="position:fixed; top:0"> -->
+    <!-- <div id="map_canvas" style="height:100%"> -->
+    <div id="map" class="map"></div>
+    <!-- </div> -->
+    <!-- </div> -->
+    <!-- </div> -->
     <div class="body-container">
-                <!-- <div id="openweathermap-widget-15"></div> -->
-      <!-- <div class="row"> -->
+
+
+        <!-- <div id="openweathermap-widget-15"></div> -->
+        <!-- <div class="row"> -->
         <!-- <div id="weather-section" class="col s12 m12 l5"> -->
         <!-- <div class="card-panel grey lighten-5 hoverable"> -->
         <!-- <h4 class="light-blue-text"><i class="material-icons">wb_sunny</i> Weather</h4> -->
         <!-- <div id="openweathermap-widget-15"></div> -->
         <!-- </div> -->
         <!-- </div> -->
-        <div id="search-bar" class="col s12 m12 l12">
+        <div id="search-bar" class="col s12 m12 l6">
             <div class="row" id="row1">
-                <h3 class="heading">Search Restrooms</h3>
+                <!-- <h3 class="heading">Search Restrooms</h3> -->
 
-                <form class="form-wrapper col s12 l12">
+                <form class="form-wrapper col s12 l6">
                     <!-- <div class="row" id="form-row"> -->
-                    <div class="input-field col l5 s12">
+                    <div class="input-field col l5 s6">
                         <input id="address" type="text" class="validate">
                         <label for="address">Address</label>
                     </div>
-                    <div class="input-field col l3 s12">
+                    <div class="input-field col l3 s4   ">
                         <input id="city" type="text" class="validate">
                         <label for="city">City</label>
                     </div>
-                    <div class="input-field col l2 s12">
+                    <div class="input-field col l2 s2">
                         <select id="state">
                             <option value="AL">AL</option>
                             <option value="AK">AK</option>
@@ -155,7 +164,7 @@
                         </select>
                         <label for="state">State</label>
                     </div>
-                    <button id="submit" class="btn-large waves-effect waves-light col l2 s12">
+                    <button id="submit" class="btn-flat btn-large waves-effect waves-light col l2 s2">
                         <!-- <iclass="material-icons right">location_searching</i> -->
                         Search</button>
                     <!-- </div> -->
@@ -163,14 +172,24 @@
             </div>
 
         </div>
-        <div class="row row2">
-            <div id="map" class="map"></div>
-            <div id="results-section" class="col s12">
-                <!-- <h3 class="heading">Results</h3> -->
-                <div id="results"></div>
-                <!-- <div id="results2"></div> -->
-            </div>
+
+
+
+        <!-- <di /v class="row row2"> -->
+        <!-- <div class="map-wrapper"> -->
+        <!-- <div id="fixed" style="position:fixed; top:0"> -->
+
+        <!-- </div> -->
+        <!-- </div> -->
+        <!-- <div id="map" class="map"></div> -->
+        <div id="results-section" class="col s12 l6">
+            <!-- <h3 class="heading">Results</h3> -->
+            <div id="results2" class="col s12 l6"></div>
+
+            <div id="results" class="col s12 l6"></div>
+
         </div>
+        <!-- </div> -->
     </div>
     <div id="myModal" class="popup">
         <div class="popup-content white lighten">
