@@ -30,6 +30,7 @@ body {
     position: inherit;
     margin: 0 auto;
     overflow-y: hidden;
+    overflow: auto;
 }
 
 .body-container {
