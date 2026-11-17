@@ -3,6 +3,24 @@ import { readFileSync, writeFileSync } from "node:fs";
 // Re-applied after `cap sync` so a regenerated Info.plist keeps the App Store keys.
 // Bundle id and device family live in the Xcode project; this script does not
 // change them. See docs/APP_STORE.md.
+//
+// The launch storyboard is also pinned to scaleAspectFit. @capacitor/assets
+// copies assets/splash.png into a square Splash image, and scaleAspectFill
+// crops that wordmark on tall iPhones. The storyboard background is the same
+// teal as the artwork, so the fitted bars are invisible.
+
+const storyboardPath = "ios/App/App/Base.lproj/LaunchScreen.storyboard";
+let storyboard = readFileSync(storyboardPath, "utf8");
+if (storyboard.includes('contentMode="scaleAspectFill"')) {
+  storyboard = storyboard.replaceAll('contentMode="scaleAspectFill"', 'contentMode="scaleAspectFit"');
+  writeFileSync(storyboardPath, storyboard);
+  console.log("Updated", storyboardPath, "to scaleAspectFit");
+} else if (!storyboard.includes('contentMode="scaleAspectFit"')) {
+  console.error(storyboardPath, "has no splash contentMode to keep on scaleAspectFit");
+  process.exitCode = 1;
+} else {
+  console.log(storyboardPath, "already uses scaleAspectFit");
+}
 
 const plistPath = "ios/App/App/Info.plist";
 const locationUsage =

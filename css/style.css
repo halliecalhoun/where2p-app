@@ -53,20 +53,37 @@ a {
   outline-offset: 2px;
 }
 
+/* Clipped until keyboard focus. Shifting it up from the safe-area top
+   still paints over the status bar, and :focus would show a WebView autofocus. */
 .skip-link {
   position: absolute;
-  left: calc(8px + var(--safe-left));
   top: calc(8px + var(--safe-top));
-  transform: translateY(-150%);
+  left: calc(8px + var(--safe-left));
+  z-index: 3000;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
   background: #fff;
   color: var(--ink);
-  padding: 8px 12px;
+  text-decoration: none;
   border-radius: 8px;
-  z-index: 3000;
 }
 
-.skip-link:focus {
-  transform: none;
+.skip-link.is-keyboard-focus:focus-visible {
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 8px 12px;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
 }
 
 .site-header {
