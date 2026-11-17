@@ -6,7 +6,7 @@ Where2P helps you find a public restroom while you are out. Search for a city or
 
 Live site: [https://halliecalhoun.github.io/where2p-app/](https://halliecalhoun.github.io/where2p-app/)
 
-GitHub Pages publishes the `master` branch from the repository root. There is no build step.
+GitHub Pages publishes the `master` branch from the repository root. There is no build step for the website. The iOS app is a Capacitor project in `ios/` and is documented in [docs/APP_STORE.md](docs/APP_STORE.md). `npm run build:web` copies this site into `www/` for that app. It does not move the files Pages serves.
 
 ## Run it locally
 

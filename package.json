@@ -1,0 +1,26 @@
+{
+  "name": "where2p",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Where2P — find a public restroom nearby. The website is the repo root; the iOS app is a Capacitor shell around a copy of that site.",
+  "scripts": {
+    "build:web": "node scripts/copy-web.mjs",
+    "ios:configure": "node scripts/configure-ios.mjs",
+    "cap:sync": "npm run build:web && cap sync ios && npm run ios:configure",
+    "cap:open": "cap open ios",
+    "ios": "npm run cap:sync && cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/browser": "^8.0.5",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/geolocation": "^8.2.4",
+    "@capacitor/ios": "^8.6.2",
+    "@capacitor/network": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.2"
+  }
+}

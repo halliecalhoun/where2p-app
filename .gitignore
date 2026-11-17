@@ -1,1 +1,26 @@
 .DS_Store
+
+# iOS app dependencies and generated web copy. The site GitHub Pages
+# publishes stays at the repo root and is not produced by this build.
+node_modules/
+www/
+
+# Capacitor copies the web assets and config into the Xcode project on sync.
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/Pods/
+ios/App/build/
+ios/DerivedData/
+ios/App/App/CapApp-SPM/symlinks/
+
+# Xcode local state and signing material. Never commit these.
+**/xcuserdata/
+**/*.xcuserstate
+*.mobileprovision
+*.p12
+*.cer
+*.certSigningRequest
+*.pem
+
+.env
+.env.*
