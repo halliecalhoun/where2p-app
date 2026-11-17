@@ -1,0 +1,26 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "$restroomId": {
+      ".read": "$restroomId.beginsWith('refuge-') && $restroomId.length > 7",
+      ".write": false,
+      "$reviewId": {
+        ".write": "$restroomId.beginsWith('refuge-') && $restroomId.length > 7 && !data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['name', 'rating', 'review'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80 && newData.val().replace(' ', '').replace('\\t', '').replace('\\n', '').replace('\\r', '').length > 0"
+        },
+        "rating": {
+          ".validate": "newData.isString() && (newData.val() == '0.5' || newData.val() == '1' || newData.val() == '1.5' || newData.val() == '2' || newData.val() == '2.5' || newData.val() == '3' || newData.val() == '3.5' || newData.val() == '4' || newData.val() == '4.5' || newData.val() == '5')"
+        },
+        "review": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000 && newData.val().replace(' ', '').replace('\\t', '').replace('\\n', '').replace('\\r', '').length > 0"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}

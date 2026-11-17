@@ -24,3 +24,8 @@ ios/App/App/CapApp-SPM/symlinks/
 
 .env
 .env.*
+
+# Firebase emulator logs and cache. Rules live in database.rules.json.
+.firebase/
+*-debug.log
+firebase-export*/

@@ -32,7 +32,30 @@ Listings are community-submitted, so names and notes vary in quality. Refuge Res
 
 The map and the restroom list do not need an API key.
 
-Reviews use the existing Firebase project, `where2p-388bb`. Its web config lives in `js/config.js`. Those values identify the client app. They are not server secrets, and they were already in this repository. Firebase security rules decide who can read and write. The current rules allow anyone to read and write reviews, which is fine for this demo and too open for anything else. Tighten them in the Firebase console if the project stays online.
+Reviews use the Firebase project `where2p-e3170`. Its web config lives in `js/config.js`. Those values identify the client app. They are not server secrets. Who can read and write is decided by Realtime Database rules, in `database.rules.json`. The database is in `us-central1` and is empty. Reviews can be saved after the rules below are published.
+
+### Publish the review rules
+
+The app reads one path per restroom, `refuge-<id>` (`reviewPath` in `js/app.js`). A new review is a `push()` under that path with exactly three fields:
+
+- `name`: string, 1–80 characters
+- `rating`: one of the form's option strings, `"0.5"` through `"5"` in half-star steps (the select value, not a number)
+- `review`: string, 1–1000 characters
+
+The rules allow a public read of those `refuge-*` paths, allow a write only when it creates a new review with those fields (`!data.exists()`), and deny every other read or write. There is no timestamp and no restroom id on the review record. The restroom id is the path key.
+
+Publish `database.rules.json` in either of these ways:
+
+1. Firebase Console > project `where2p-e3170` > Realtime Database > Rules. Paste the file, then click Publish.
+2. From this folder, logged in to an account that can deploy that project:
+
+```bash
+npx firebase-tools deploy --only database
+```
+
+`firebase.json` points the CLI at `database.rules.json`. `.firebaserc` sets the default project to `where2p-e3170`.
+
+`npm run test:rules` starts the Realtime Database emulator and checks that a valid review write succeeds and that an overwrite, a delete, and an extra field are rejected.
 
 Nothing else needs to be filled in before the site works. The old Google Maps key no longer returns results because billing is not enabled on that Cloud project. The Yelp API cannot be called from a GitHub Pages site, and the token that used to be hardcoded in `js/app.js` was still accepted by Yelp, so it should be revoked in the [Yelp developer dashboard](https://www.yelp.com/developers/v3/manage_app).
 
