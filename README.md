@@ -1,45 +1,41 @@
 # Where2P
-![Demo of Finalized Site](images/demo.gif)
 
-## About
-We created this app based on the lack of resources available for those who need to use a bathroom in a public setting on the go. Where2P provides a list of possible restrooms which are pulled from both the Yelp and Google Places API calls using AJAX. The list is based on the current location of the user obtained from the Google Maps API. The user is able to view the suggested locations by Yelp marked by blue markers and Google locations marked by red markers. The user's current location is marked by a purple marker. 
+Where2P helps you find a public restroom while you are out. Search for a city or address, or use your current location. Matching places show up in a list and on a map, including accessible, all-gender, and changing-table details when the listing has them. You can read reviews and leave your own.
 
- Implementing Geocoding API, we've included the feature of searching for a new location if the user decides to search for restrooms in a different area via street address. The results for both Yelp and Google will also update to display nearby restroom locations to that street address. 
+![Where2P listing restrooms near Austin, with the same places marked on a map](images/screenshot.png)
 
- The user will also be able to leave a review that will be stored in Firebase. If they visit a bathroom location listed from either Yelp or Google Places, they will have an option to "Add Review". The user will be able to submit their name and review. After clicking submit, their input and associated data-id will be stored in Firebase. Users will be able to see other reviews written by other users.
+Live site: [https://halliecalhoun.github.io/where2p-app/](https://halliecalhoun.github.io/where2p-app/)
 
-To make the app more beneficial to the user, we've included a widget from the  OpenWeatherMap API that lets the user know what the weather is based on their current location. 
+GitHub Pages publishes the `master` branch from the repository root. There is no build step.
 
-## Wireframe
-![Screenshot of Original Wireframe](images/Wireframe.PNG)
+## Run it locally
 
-######
-| Technology Used | Reference |
-| --------------- | --------- |
-| HTML | https://developer.mozilla.org/en-US/docs/Web/HTML |
-| CSS | https://developer.mozilla.org/en-US/docs/Web/CSS |
-| Materialize | https://materializecss.com/ |
-| JavaScript | https://www.javascript.com/ |
-| jQuery | https://jquery.com/ |
-| Firebase | https://firebase.google.com/ |
-######
+From this folder, start any static file server:
 
+```bash
+python3 -m http.server 8080
+```
 
-######
-| API Used | Reference |
-| --------------- | --------- |
-| OpenWeatherMap | https://openweathermap.org/ |
-| Yelp | https://www.yelp.com/developers/documentation/v3 |
-| Google Maps | https://developers.google.com/maps/ |
-| Google Places | https://cloud.google.com/maps-platform/places/ |
-| Geocode | https://developers.google.com/maps/documentation/geocoding/start|
-######
+Open [http://localhost:8080](http://localhost:8080). Search works right away. "Use my location" needs a browser that can share your location. `localhost` counts as a secure page, so that button works there too.
 
+## Tech stack
 
-#####  
-Authors  | Github
-------------- | -------------
-Jake Dudum  | https://github.com/JakeDudum
-Darryl Tolentino  | https://github.com/DarrylJLTolentino
-Hallie Calhoun | https://github.com/halliecalhoun
-Adrienne Liu  | https://github.com/adrienneliu
+- HTML, CSS, and JavaScript, with no framework and no build
+- [Leaflet](https://leafletjs.com/) and [OpenStreetMap](https://www.openstreetmap.org/copyright) for the map
+- [Refuge Restrooms](https://www.refugerestrooms.org/) for the restroom listings
+- [Photon](https://photon.komoot.io/) to turn a city or address into coordinates
+- [Firebase Realtime Database](https://firebase.google.com/docs/database) for reviews
+
+Listings are community-submitted, so names and notes vary in quality. Refuge Restrooms and OpenStreetMap both need to be credited, which the page already does.
+
+## Reviews and API keys
+
+The map and the restroom list do not need an API key.
+
+Reviews use the existing Firebase project, `where2p-388bb`. Its web config lives in `js/config.js`. Those values identify the client app. They are not server secrets, and they were already in this repository. Firebase security rules decide who can read and write. The current rules allow anyone to read and write reviews, which is fine for this demo and too open for anything else. Tighten them in the Firebase console if the project stays online.
+
+Nothing else needs to be filled in before the site works. The old Google Maps key no longer returns results because billing is not enabled on that Cloud project. The Yelp API cannot be called from a GitHub Pages site, and the token that used to be hardcoded in `js/app.js` was still accepted by Yelp, so it should be revoked in the [Yelp developer dashboard](https://www.yelp.com/developers/v3/manage_app).
+
+## Authors
+
+Jake Dudum, Darryl Tolentino, Hallie Calhoun, and Adrienne Liu.

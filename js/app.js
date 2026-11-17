@@ -1,435 +1,734 @@
-var firebaseConfig = {
-    apiKey: "AIzaSyBWrFxW_77FLMcrt8WoixzkEPy6ClSu6f0",
-    authDomain: "where2p-388bb.firebaseapp.com",
-    databaseURL: "https://where2p-388bb.firebaseio.com",
-    projectId: "where2p-388bb",
-    storageBucket: "where2p-388bb.appspot.com",
-    messagingSenderId: "896023113193",
-    appId: "1:896023113193:web:5c255b734c84f410"
-};
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+(function () {
+  "use strict";
 
-var database = firebase.database();
+  var REFUGE_ENDPOINT = "https://www.refugerestrooms.org/api/v1/restrooms/by_location";
+  var GEOCODE_ENDPOINT = "https://photon.komoot.io/api/";
+  var STORAGE_KEY = "where2p:last-query";
 
-var ReviewID;
+  var map = null;
+  var restroomLayer = null;
+  var originMarker = null;
+  var originIcon = null;
+  var restroomIcon = null;
+  var markerById = {};
+  var database = null;
+  var requestId = 0;
+  var busyId = 0;
+  var activeReview = null;
+  var lastFocus = null;
 
-$('select').formSelect();
+  function init() {
+    initMap();
+    initFirebase();
+    bindUi();
+    setListMessage("Restrooms will show up here after you share your location or search.");
+    restoreOrLocate();
+  }
 
-// Get the modal
-var modal = document.getElementById("myModal");
-
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
-
-span.onclick = function() {
-    modal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
+  function initMap() {
+    if (!window.L) {
+      return;
     }
-    if (event.target == modal2) {
-        modal2.style.display = "none";
-    }
-}
 
-// Get the modal
-var modal2 = document.getElementById("myModal2");
+    map = L.map("map", { scrollWheelZoom: true }).setView([39.5, -98.35], 4);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
 
-// Get the <span> element that closes the modal
-var span2 = document.getElementsByClassName("close2")[0];
-
-// When the user clicks on <span> (x), close the modal
-span2.onclick = function() {
-    modal2.style.display = "none";
-}
-
-$(document).on('click', "#submit-review", function() {
-    event.preventDefault();
-    var userName = $('#userName').val().trim();
-    var userRating = $('#userRating').val();
-    var userReview = $('#userReview').val().trim();
-
-    if (userName.length > 0 && userReview.length > 0) {
-        database.ref(ReviewID).push({
-            name: userName,
-            rating: userRating,
-            review: userReview
-        })
-    }
-    modal.style.display = "none";
-    $('#userName').val("");
-    $('#userReview').val("");
-});
-
-$(document).on('click', ".see-reviews", function() {
-    event.preventDefault();
-    ReviewID = $(this).attr('data-id');
-    modal2.style.display = "block";
-
-    $("#reviews-list").empty();
-
-    var businessRef = database.ref(ReviewID);
-    businessRef.on('value', function(snapshot) {
-        snapshot.forEach(function(childSnapshot) {
-            var childData = childSnapshot.val();
-            var newDiv = $("<div>");
-            newDiv.append($("<p>").addClass("bigger").text("Name: " + childData.name), $("<p>").addClass("bigger").text("Rating: " + childData.rating), $("<p>").addClass('bigger').text("Review: " + childData.review), "<br>");
-            $("#reviews-list").append(newDiv);
-        });
+    restroomLayer = L.layerGroup().addTo(map);
+    originIcon = L.divIcon({
+      className: "pin pin-origin",
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
+      popupAnchor: [0, -12]
     });
-});
+    restroomIcon = L.divIcon({
+      className: "pin pin-restroom",
+      iconSize: [18, 18],
+      iconAnchor: [9, 9],
+      popupAnchor: [0, -10]
+    });
+  }
 
-$(document).on('click', ".add-review", function() {
-    event.preventDefault();
-    modal.style.display = "block";
-    ReviewID = $(this).attr('data-id');
-    $(this).addClass('hide');
-});
-
-
-var map;
-var pos = {};
-
-function initMap() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            pos = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            }
-
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: {
-                    lat: pos.lat,
-                    lng: pos.lng
-                },
-                zoom: 15
-            });
-
-            var marker = new google.maps.Marker({
-                position: pos,
-                map: map,
-                title: "You are here.",
-                animation: google.maps.Animation.DROP,
-                icon: "http://maps.google.com/mapfiles/ms/icons/purple-dot.png"
-            })
-            marker.setMap(map);
-
-            var apiKey = "e9d3c600773e0277e03e42289aeaf483";
-
-            $.ajax({
-                url: 'https://cryptic-castle-96421.herokuapp.com/api.openweathermap.org/data/2.5/weather?lat=' + pos.lat + '&lon=' + pos.lng + '&units=imperial&appid=' + apiKey,
-                method: "GET"
-
-            }).then(function(response) {
-
-                var weatherCityId = response.id;
-
-                $('#openweathermap-widget-15').empty();
-                window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
-                window.myWidgetParam.push({ id: 15, cityid: weatherCityId, appid: '945c3adf4a846dc18d8b8ed754fe7142', units: 'imperial', containerid: 'openweathermap-widget-15', });
-                (function() {
-                    var script = document.createElement('script');
-                    script.async = true;
-                    script.charset = "utf-8";
-                    script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator.js";
-                    var s = document.getElementsByTagName('script')[0];
-                    s.parentNode.insertBefore(script, s);
-                })();
-            });
-
-            var queryURL = 'https://cryptic-castle-96421.herokuapp.com/https://api.yelp.com/v3/businesses/search?latitude=' + pos.lat + '&longitude=' + pos.lng + '&term=public+restroom&reviews&radius=10000&limit=15&attributes=gender_neutral_restrooms';
-            $.ajax({
-                url: queryURL,
-                method: "GET",
-                headers: {
-                    authorization: "Bearer 4Rm7FqyoBh0DGVD6bV936T1y38wYSXyOiQBtQsIza6j_MZVWcPuLtT7x_06Ej7j5TN4ZFgsOAxlj_FHlQrjgyfYbXsGuYjQeamj84ii533Ii5sTH4wKUUjhqNqf6XHYx"
-                }
-            }).then(function(response) {
-                for (var i = 0; i < response.businesses.length; i++) {
-                    var yelpPos = {
-                        lat: response.businesses[i].coordinates.latitude,
-                        lng: response.businesses[i].coordinates.longitude
-                    };
-                    var marker = new google.maps.Marker({
-                        position: yelpPos,
-                        map: map,
-                        title: response.businesses[i].name,
-                        animation: google.maps.Animation.DROP,
-                        icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                    });
-                    marker.setMap(map);
-                    var newDiv = $("<div>").addClass('row results-div card-panel lighten-5');
-                    var addReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
-                    var id = response.businesses[i].id;
-                    var rating = $("<p>").text("Rating: " + response.businesses[i].rating);
-                    rating.addClass("rating");
-                    var imageDiv = $("<img>").attr('src', response.businesses[i].image_url);
-                    imageDiv.addClass("placeImg");
-                    var isOpen;
-                    var name = $("<h6>").text(response.businesses[i].name).addClass("business");
-
-                    if (response.businesses[i].is_closed === false) {
-                        isOpen = $("<p>").text(" | Open Now");
-                        isOpen.addClass("open");
-                    } else {
-                        isOpen = $("<p>").text(" | Closed Now");
-                        isOpen.addClass("closed");
-                    }
-
-                    var seeReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
-                    seeReview.attr("data-id", id);
-                    seeReview.css({ float: "left" });
-                    seeReview.addClass('see-reviews');
-                    seeReview.text("See Reviews");
-
-                    addReview.attr("data-id", id);
-                    addReview.css({ float: "left" });
-                    addReview.addClass('add-review');
-                    addReview.text("Add Review");
-
-                    newDiv.append(name, imageDiv, rating, isOpen, seeReview, addReview);
-
-                    $("#results").append(newDiv);
-                }
-            })
-            $.ajax({
-                url: "https://cryptic-castle-96421.herokuapp.com/https://maps.googleapis.com/maps/api/place/textsearch/json?query=Public+Resroom&location=" + pos.lat + "," + pos.lng + "&key=AIzaSyAz23lQswC8r0KGNmRE09W2dzLYVeqWoT0",
-                method: "GET"
-            }).then(function(response) {
-
-                for (var i = 0; i < response.results.length; i++) {
-
-                    var locationPos = {
-                        lat: response.results[i].geometry.location.lat,
-                        lng: response.results[i].geometry.location.lng
-                    };
-                    var marker = new google.maps.Marker({
-                        position: locationPos,
-                        map: map,
-                        title: response.results[i].formatted_address,
-                        animation: google.maps.Animation.DROP,
-                    });
-                    marker.setMap(map);
-
-                    if (response.results[i].photos === undefined) {
-
-                    } else {
-                        photoRef = response.results[i].photos[0]["photo_reference"];
-
-                        var photoURL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoRef + "&key=AIzaSyAz23lQswC8r0KGNmRE09W2dzLYVeqWoT0"
-
-                        var newDiv = $("<div>");
-                        newDiv.addClass('row results-div card-panel lighten-5');
-                        var name = $("<h6>").text(response.results[i].name);
-                        var rating = $("<p>").text("Rating: " + response.results[i].rating);
-                        rating.addClass("rating");
-                        name.addClass("business");
-                        var imageDiv = $("<img>").addClass("placeImg");
-                        imageDiv.attr('src', photoURL);
-                        var id = response.results[i].place_id;
-
-                        var seeReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
-                        seeReview.attr("data-id", id);
-                        seeReview.css({ float: "left" });
-                        seeReview.addClass('see-reviews');
-                        seeReview.text("See Reviews");
-
-                        var addReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
-                        addReview.attr("data-id", id);
-                        addReview.css({ float: "left" });
-                        addReview.addClass('add-review');
-                        addReview.text("Add Review");
-
-                        newDiv.append(name, imageDiv, rating, seeReview, addReview);
-
-                        $("#results").append(newDiv);
-                    }
-                }
-            });
-        })
+  function initFirebase() {
+    var config = window.WHERE2P_CONFIG && window.WHERE2P_CONFIG.firebase;
+    if (!config || !window.firebase || !config.databaseURL) {
+      return;
     }
-}
+    if (!config.apiKey || config.apiKey.indexOf("YOUR_") === 0) {
+      return;
+    }
 
-function initMapOnSubmit(address, city, state) {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(config);
+      }
+      database = firebase.database();
+    } catch (error) {
+      database = null;
+    }
+  }
 
-    var locationPos = {};
+  function bindUi() {
+    document.getElementById("search-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      var query = document.getElementById("place-query").value.trim();
+      if (!query) {
+        setStatus("Enter a city or address to search.");
+        return;
+      }
+      searchPlace(query);
+    });
 
-    $.ajax({
-        url: "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + ",+" + city + ",+" + state + "&key=AIzaSyAz23lQswC8r0KGNmRE09W2dzLYVeqWoT0",
-        method: "GET"
-    }).then(function(response) {
-        locationPos = {
-            lat: response.results[0].geometry.location.lat,
-            lng: response.results[0].geometry.location.lng
+    document.getElementById("locate").addEventListener("click", locate);
+
+    document.querySelector(".suggestions").addEventListener("click", function (event) {
+      var chip = event.target.closest(".chip");
+      if (!chip) {
+        return;
+      }
+      document.getElementById("place-query").value = chip.getAttribute("data-query");
+      searchPlace(chip.getAttribute("data-query"));
+    });
+
+    document.getElementById("results-list").addEventListener("click", function (event) {
+      var card = event.target.closest(".restroom-card");
+      if (!card) {
+        return;
+      }
+      if (event.target.closest("[data-action='reviews']")) {
+        openReviews(card.getAttribute("data-id"), card.getAttribute("data-name"));
+        return;
+      }
+      if (event.target.closest("[data-action='add']")) {
+        openAddReview(card.getAttribute("data-id"), card.getAttribute("data-name"));
+        return;
+      }
+      focusPlace(card.getAttribute("data-id"));
+    });
+
+    document.getElementById("review-form").addEventListener("submit", submitReview);
+
+    document.querySelectorAll("[data-close]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        closeModal(button.getAttribute("data-close"));
+      });
+    });
+
+    document.querySelectorAll(".modal").forEach(function (modal) {
+      modal.addEventListener("click", function (event) {
+        if (event.target === modal) {
+          closeModal(modal.id);
         }
-        map = new google.maps.Map(document.getElementById("map"), {
-            center: {
-                lat: locationPos.lat,
-                lng: locationPos.lng
-            },
-            zoom: 15
-        });
-
-        var marker = new google.maps.Marker({
-            position: locationPos,
-            map: map,
-            title: "You are here.",
-            animation: google.maps.Animation.DROP,
-            icon: "http://maps.google.com/mapfiles/ms/icons/purple-dot.png"
-        })
-        marker.setMap(map);
-
-        var apiKey = "e9d3c600773e0277e03e42289aeaf483";
-        $.ajax({
-            url: 'https://cryptic-castle-96421.herokuapp.com/api.openweathermap.org/data/2.5/weather?lat=' + locationPos.lat + '&lon=' + locationPos.lng + '&units=imperial&appid=' + apiKey,
-            method: "GET"
-
-        }).then(function(response) {
-
-            var weatherCityId = response.id;
-
-            $('#openweathermap-widget-15').empty();
-            window.myWidgetParam ? window.myWidgetParam : window.myWidgetParam = [];
-            window.myWidgetParam.push({ id: 15, cityid: weatherCityId, appid: '945c3adf4a846dc18d8b8ed754fe7142', units: 'imperial', containerid: 'openweathermap-widget-15', });
-            (function() {
-                var script = document.createElement('script');
-                script.async = true;
-                script.charset = "utf-8";
-                script.src = "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator.js";
-                var s = document.getElementsByTagName('script')[0];
-                s.parentNode.insertBefore(script, s);
-            })();
-
-        });
-
-        var queryURL = 'https://cryptic-castle-96421.herokuapp.com/https://api.yelp.com/v3/businesses/search?term=public+restroom&location=' + address + ' ' + city + ' ' + state + '&radius=5000&limit=15&attributes=gender_neutral_restrooms';
-        $.ajax({
-            url: queryURL,
-            method: "GET",
-            headers: {
-                authorization: "Bearer 4Rm7FqyoBh0DGVD6bV936T1y38wYSXyOiQBtQsIza6j_MZVWcPuLtT7x_06Ej7j5TN4ZFgsOAxlj_FHlQrjgyfYbXsGuYjQeamj84ii533Ii5sTH4wKUUjhqNqf6XHYx"
-            }
-        }).then(function(response) {
-            for (var i = 0; i < response.businesses.length; i++) {
-                var yelpPos = {
-                    lat: response.businesses[i].coordinates.latitude,
-                    lng: response.businesses[i].coordinates.longitude
-                };
-                var marker = new google.maps.Marker({
-                    position: yelpPos,
-                    map: map,
-                    title: response.businesses[i].alias,
-                    animation: google.maps.Animation.DROP,
-                    icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                });
-                marker.setMap(map);
-                var newDiv = $("<div>");
-                newDiv.addClass('row results-div card-panel lighten-5')
-                var addReview = $("<button>");
-                addReview.addClass("btn-link waves-effect waves-light btn-link reviews");
-                var rating = $("<p>").text("Rating: " + response.businesses[i].rating);
-                rating.addClass("rating");
-                var imageDiv = $("<img>").addClass("placeImg");
-                imageDiv.attr('src', response.businesses[i].image_url);
-                var name = $("<h6>").text(response.businesses[i].name);
-                name.addClass("business");
-                var id = response.businesses[i].id;
-                var isOpen;
-                if (response.businesses[i].is_closed === false) {
-                    isOpen = $("<p>").text(" | Open Now");
-                    isOpen.addClass("open");
-                } else {
-                    isOpen = $("<p>").text(" | Closed Now");
-                    isOpen.addClass("closed");
-                }
-                var seeReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
-                seeReview.attr("data-id", id);
-                seeReview.css({ float: "left" });
-                seeReview.addClass('see-reviews');
-                seeReview.text("See Reviews");
-
-                addReview.attr("data-id", id);
-                addReview.css({ float: "left" });
-                addReview.addClass('add-review');
-                addReview.text("Add Review");
-                newDiv.append(name, imageDiv, rating, isOpen, seeReview, addReview);
-
-                $("#results2").append(newDiv);
-            }
-        });
-
-        $.ajax({
-            url: "https://cryptic-castle-96421.herokuapp.com/https://maps.googleapis.com/maps/api/place/textsearch/json?query=Public+Restroom&location=" + locationPos.lat + "," + locationPos.lng + "&radius=5000&key=AIzaSyAz23lQswC8r0KGNmRE09W2dzLYVeqWoT0",
-            method: "GET"
-        }).then(function(response) {
-            for (var i = 0; i < response.results.length; i++) {
-
-                var locationPos = {
-                    lat: response.results[i].geometry.location.lat,
-                    lng: response.results[i].geometry.location.lng
-                };
-                var marker = new google.maps.Marker({
-                    position: locationPos,
-                    map: map,
-                    title: response.results[i].formatted_address,
-                    animation: google.maps.Animation.DROP,
-                });
-                marker.setMap(map);
-
-                if (response.results[i].photos === undefined) {
-
-                } else {
-                    photoRef = response.results[i].photos[0]["photo_reference"];
-                    var photoURL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" + photoRef + "&key=AIzaSyAz23lQswC8r0KGNmRE09W2dzLYVeqWoT0";
-
-                    var newDiv = $("<div>");
-                    newDiv.addClass('row results-div card-panel lighten-5');
-                    var imageDiv = $("<img>").addClass("placeImg");
-                    imageDiv.attr('src', photoURL);
-                    var name = $("<h6>").text(response.results[i].name);
-                    var rating = $("<p>").text("Rating: " + response.results[i].rating);
-                    rating.addClass("rating");
-                    name.addClass("business");
-
-                    var id = response.results[i].place_id;
-
-                    var seeReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
-                    seeReview.attr("data-id", id);
-                    seeReview.css({ float: "left" });
-                    seeReview.addClass('see-reviews');
-                    seeReview.text("See Reviews");
-
-                    var addReview = $("<button>").addClass("btn-link waves-effect waves-light btn-link reviews");
-                    addReview.attr("data-id", id);
-                    addReview.css({ float: "left" });
-                    addReview.addClass('add-review');
-                    addReview.text("Add Review");
-
-                    newDiv.append(name, imageDiv, rating, seeReview, addReview);
-
-                    $("#results").append(newDiv);
-                }
-            }
-        });
+      });
     });
-}
 
-$("#submit").on("click", function() {
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeModal("review-modal");
+        closeModal("reviews-modal");
+      }
+    });
+  }
+
+  function restoreOrLocate() {
+    var saved = "";
+    try {
+      saved = sessionStorage.getItem(STORAGE_KEY) || "";
+    } catch (error) {
+      saved = "";
+    }
+
+    if (saved) {
+      document.getElementById("place-query").value = saved;
+      searchPlace(saved);
+      return;
+    }
+
+    locate();
+  }
+
+  function locate() {
+    var id = ++requestId;
+    if (!navigator.geolocation) {
+      setStatus("This browser can't share location. Search for a city or address instead.");
+      return;
+    }
+
+    setStatus("Finding your location…");
+    setOriginLegend("You");
+
+    navigator.geolocation.getCurrentPosition(function (position) {
+      if (id !== requestId) {
+        return;
+      }
+      setBusy(true, id);
+      loadRestrooms(position.coords.latitude, position.coords.longitude, "you", id);
+    }, function () {
+      if (id !== requestId) {
+        return;
+      }
+      setStatus("Location is blocked or unavailable. Search for a city or address instead.");
+      if (!document.querySelector(".restroom-card")) {
+        setListMessage("Search for a city or address and restrooms will be listed here.");
+      }
+    }, {
+      enableHighAccuracy: false,
+      timeout: 8000,
+      maximumAge: 60000
+    });
+  }
+
+  function searchPlace(query) {
+    var id = ++requestId;
+    setBusy(true, id);
+    setStatus("Looking up " + query + "…");
+    setOriginLegend("Searched spot");
+
+    fetchJson(GEOCODE_ENDPOINT + "?q=" + encodeURIComponent(query) + "&limit=1&lang=en")
+      .then(function (data) {
+        if (id !== requestId) {
+          setBusy(false, id);
+          return null;
+        }
+        var feature = data.features && data.features[0];
+        if (!feature || !feature.geometry) {
+          setBusy(false, id);
+          setStatus("No place matched \"" + query + "\". Try a city or a street address.");
+          return null;
+        }
+        try {
+          sessionStorage.setItem(STORAGE_KEY, query);
+        } catch (error) {
+          // Ignore storage failures. Search still works.
+        }
+        var coordinates = feature.geometry.coordinates || [];
+        var lat = Number(coordinates[1]);
+        var lng = Number(coordinates[0]);
+        if (!isFinite(lat) || !isFinite(lng)) {
+          setBusy(false, id);
+          setStatus("No place matched \"" + query + "\". Try a city or a street address.");
+          return null;
+        }
+        return loadRestrooms(lat, lng, placeLabel(feature.properties, query), id);
+      })
+      .catch(function () {
+        if (id !== requestId) {
+          setBusy(false, id);
+          return;
+        }
+        setBusy(false, id);
+        setStatus("That search didn't go through. Check your connection and try again.");
+      });
+  }
+
+  function loadRestrooms(lat, lng, label, id) {
+    var where = label === "you" ? "you" : label;
+    setStatus("Finding restrooms near " + where + "…");
+    showOrigin(lat, lng, label === "you" ? "You are here" : label);
+
+    var url = REFUGE_ENDPOINT + "?lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&per_page=20";
+    return fetchJson(url).then(function (places) {
+      if (id !== requestId) {
+        setBusy(false, id);
+        return;
+      }
+      if (!Array.isArray(places)) {
+        throw new Error("directory");
+      }
+
+      var cleaned = places.filter(function (place) {
+        return isFinite(place.latitude) && isFinite(place.longitude);
+      }).map(function (place) {
+        return Object.assign({}, place, {
+          distanceMiles: milesBetween(lat, lng, Number(place.latitude), Number(place.longitude))
+        });
+      }).sort(function (a, b) {
+        return a.distanceMiles - b.distanceMiles;
+      });
+
+      renderRestrooms(dedupe(cleaned), label);
+      setBusy(false, id);
+    }).catch(function () {
+      if (id !== requestId) {
+        setBusy(false, id);
+        return;
+      }
+      setBusy(false, id);
+      showDirectoryError();
+    });
+  }
+
+  function renderRestrooms(places, label) {
+    var list = document.getElementById("results-list");
+    var count = document.getElementById("results-count");
+    var where = label === "you" ? "you" : label;
+    list.replaceChildren();
+    markerById = {};
+    if (restroomLayer) {
+      restroomLayer.clearLayers();
+    }
+
+    if (!places.length) {
+      count.textContent = "0 restrooms near " + where;
+      setListMessage("No restrooms found near " + where + ".");
+      fitMap();
+      setStatus("");
+      return;
+    }
+
+    var noun = places.length === 1 ? "restroom" : "restrooms";
+    count.textContent = places.length + " " + noun + " near " + where;
+
+    places.forEach(function (place) {
+      var id = String(place.id);
+      var name = place.name && String(place.name).trim() ? String(place.name).trim() : "Public restroom";
+      var address = formatAddress(place);
+      var distance = formatMiles(place.distanceMiles);
+      var card = document.createElement("article");
+      card.className = "restroom-card";
+      card.setAttribute("data-id", id);
+      card.setAttribute("data-name", name);
+
+      var title = document.createElement("button");
+      title.type = "button";
+      title.className = "card-title";
+      title.textContent = name;
+      card.appendChild(title);
+
+      if (address) {
+        card.appendChild(paragraph("address", address));
+      }
+      if (distance) {
+        card.appendChild(paragraph("distance", distance + " away"));
+      }
+
+      var badges = badgesFor(place);
+      if (badges) {
+        card.appendChild(badges);
+      }
+
+      var note = noteFor(place);
+      if (note) {
+        card.appendChild(note);
+      }
+
+      var actions = document.createElement("div");
+      actions.className = "card-actions";
+      actions.appendChild(actionButton("reviews", "See reviews"));
+      actions.appendChild(actionButton("add", "Add review"));
+      card.appendChild(actions);
+      list.appendChild(card);
+
+      if (map && restroomLayer) {
+        var marker = L.marker([Number(place.latitude), Number(place.longitude)], {
+          icon: restroomIcon,
+          title: name,
+          keyboard: true
+        });
+        marker.bindPopup(popupHtml(name, address, distance));
+        marker.on("click", function () {
+          highlight(id);
+        });
+        marker.addTo(restroomLayer);
+        markerById[id] = marker;
+      }
+    });
+
+    fitMap();
+    setStatus("");
+  }
+
+  function showOrigin(lat, lng, title) {
+    if (!map) {
+      return;
+    }
+    if (originMarker) {
+      map.removeLayer(originMarker);
+    }
+    originMarker = L.marker([lat, lng], {
+      icon: originIcon,
+      title: title,
+      zIndexOffset: 1000,
+      keyboard: true
+    }).addTo(map);
+    originMarker.bindPopup(escapeHtml(title));
+  }
+
+  function fitMap() {
+    if (!map) {
+      return;
+    }
+    var bounds = L.latLngBounds([]);
+    if (originMarker) {
+      bounds.extend(originMarker.getLatLng());
+    }
+    Object.keys(markerById).forEach(function (id) {
+      bounds.extend(markerById[id].getLatLng());
+    });
+    if (!bounds.isValid()) {
+      return;
+    }
+    map.invalidateSize();
+    map.fitBounds(bounds, { padding: [28, 28], maxZoom: 15 });
+  }
+
+  function focusPlace(id) {
+    highlight(id);
+    var marker = markerById[id];
+    if (!map || !marker) {
+      return;
+    }
+    var nextZoom = Math.max(map.getZoom(), 16);
+    map.setView(marker.getLatLng(), nextZoom);
+    marker.openPopup();
+    if (window.matchMedia("(max-width: 959px)").matches) {
+      document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function highlight(id) {
+    document.querySelectorAll(".restroom-card").forEach(function (card) {
+      card.classList.toggle("is-active", card.getAttribute("data-id") === String(id));
+    });
+    var active = document.querySelector(".restroom-card.is-active");
+    if (active) {
+      active.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  function openReviews(id, name) {
+    activeReview = { id: id, name: name };
+    document.getElementById("reviews-title").textContent = "Reviews for " + name;
+    var list = document.getElementById("reviews-list");
+    list.replaceChildren();
+    list.appendChild(paragraph("empty", "Loading reviews…"));
+    openModal("reviews-modal");
+
+    if (!database) {
+      list.replaceChildren();
+      list.appendChild(paragraph("empty", "Reviews are unavailable right now."));
+      return;
+    }
+
+    database.ref(reviewPath(id)).once("value").then(function (snapshot) {
+      list.replaceChildren();
+      if (!snapshot.exists()) {
+        list.appendChild(paragraph("empty", "No reviews yet. Be the first to add one."));
+        return;
+      }
+      snapshot.forEach(function (child) {
+        var data = child.val();
+        if (!data || typeof data !== "object") {
+          return;
+        }
+        list.appendChild(reviewItem(data));
+      });
+      if (!list.childElementCount) {
+        list.appendChild(paragraph("empty", "No reviews yet. Be the first to add one."));
+      }
+    }).catch(function () {
+      list.replaceChildren();
+      list.appendChild(paragraph("empty", "Reviews are unavailable right now."));
+    });
+  }
+
+  function openAddReview(id, name) {
+    activeReview = { id: id, name: name };
+    document.getElementById("review-title").textContent = "Review " + name;
+    document.getElementById("review-error").textContent = "";
+    openModal("review-modal");
+  }
+
+  function submitReview(event) {
     event.preventDefault();
-    $("#results").empty();
-    $("#results2").empty();
-    var address = $("#address").val().trim();
-    var city = $("#city").val().trim();
-    var state = $("#state").val();
+    var error = document.getElementById("review-error");
+    var name = document.getElementById("user-name").value.trim();
+    var rating = document.getElementById("user-rating").value;
+    var review = document.getElementById("user-review").value.trim();
 
-    initMapOnSubmit(address, city, state);
+    if (!name || !review) {
+      error.textContent = "Add your name and a short review.";
+      return;
+    }
+    if (!activeReview || !database) {
+      error.textContent = "Reviews can't be saved right now.";
+      return;
+    }
 
-    $("#address").val("");
-    $("#city").val("");
-    $("#state").val("");
-})
+    var button = event.target.querySelector("button[type='submit']");
+    button.disabled = true;
+    database.ref(reviewPath(activeReview.id)).push({
+      name: name.slice(0, 80),
+      rating: rating,
+      review: review.slice(0, 1000)
+    }).then(function () {
+      var placeName = activeReview.name;
+      document.getElementById("review-form").reset();
+      document.getElementById("user-rating").value = "5";
+      closeModal("review-modal");
+      setStatus("Review saved for " + placeName + ".");
+    }).catch(function () {
+      error.textContent = "Couldn't save that review. Try again.";
+    }).then(function () {
+      button.disabled = false;
+    });
+  }
+
+  function reviewPath(id) {
+    return "refuge-" + String(id).replace(/[.#$\[\]]/g, "_");
+  }
+
+  function openModal(id) {
+    var modal = document.getElementById(id);
+    if (!modal.hidden) {
+      return;
+    }
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    document.body.classList.add("modal-open");
+    var focusTarget = modal.querySelector("input, textarea, select, button");
+    if (focusTarget) {
+      focusTarget.focus();
+    }
+  }
+
+  function closeModal(id) {
+    var modal = document.getElementById(id);
+    if (!modal || modal.hidden) {
+      return;
+    }
+    modal.hidden = true;
+    if (document.querySelector(".modal:not([hidden])")) {
+      return;
+    }
+    document.body.classList.remove("modal-open");
+    if (lastFocus && typeof lastFocus.focus === "function") {
+      lastFocus.focus();
+    }
+  }
+
+  function showDirectoryError() {
+    setStatus("The restroom directory didn't respond. Try again in a moment.");
+    document.getElementById("results-count").textContent = "";
+    setListMessage("The restroom directory didn't respond. Try again in a moment.");
+  }
+
+  function setListMessage(message) {
+    var list = document.getElementById("results-list");
+    list.replaceChildren();
+    list.appendChild(paragraph("empty", message));
+  }
+
+  function setStatus(message) {
+    document.getElementById("status").textContent = message;
+  }
+
+  function setOriginLegend(label) {
+    document.getElementById("origin-legend").textContent = label;
+  }
+
+  function setBusy(isBusy, id) {
+    if (isBusy) {
+      busyId = id;
+    } else if (id !== busyId) {
+      return;
+    } else {
+      busyId = 0;
+    }
+    document.querySelectorAll("#search-form button, .chip").forEach(function (button) {
+      button.disabled = isBusy;
+    });
+  }
+
+  function fetchJson(url) {
+    var controller = new AbortController();
+    var timer = setTimeout(function () {
+      controller.abort();
+    }, 12000);
+
+    return fetch(url, { signal: controller.signal }).then(function (response) {
+      if (!response.ok) {
+        throw new Error("Request failed");
+      }
+      return response.json();
+    }).then(function (data) {
+      clearTimeout(timer);
+      return data;
+    }, function (error) {
+      clearTimeout(timer);
+      throw error;
+    });
+  }
+
+  function placeLabel(properties, fallback) {
+    properties = properties || {};
+    var parts = [];
+    if (properties.name) {
+      parts.push(properties.name);
+    }
+    if (properties.city && properties.city !== properties.name) {
+      parts.push(properties.city);
+    }
+    if (properties.state) {
+      parts.push(properties.state);
+    }
+    return parts.join(", ") || fallback;
+  }
+
+  function formatAddress(place) {
+    var street = clean(place.street);
+    var city = clean(place.city);
+    var state = clean(place.state);
+    var cityLine = [city, state].filter(Boolean).join(", ");
+    if (street && cityLine) {
+      return street + ", " + cityLine;
+    }
+    return street || cityLine;
+  }
+
+  function formatMiles(miles) {
+    if (!isFinite(miles)) {
+      return "";
+    }
+    if (miles < 0.1) {
+      return Math.max(1, Math.round(miles * 5280)) + " ft";
+    }
+    return (miles < 10 ? miles.toFixed(1) : Math.round(miles).toString()) + " mi";
+  }
+
+  function milesBetween(lat1, lng1, lat2, lng2) {
+    var radius = 3958.8;
+    var dLat = toRadians(lat2 - lat1);
+    var dLng = toRadians(lng2 - lng1);
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * radius * Math.asin(Math.min(1, Math.sqrt(a)));
+  }
+
+  function toRadians(degrees) {
+    return degrees * Math.PI / 180;
+  }
+
+  function dedupe(places) {
+    var seen = {};
+    return places.filter(function (place) {
+      var name = clean(place.name).toLowerCase();
+      var key = name + "|" + Number(place.latitude).toFixed(3) + "|" + Number(place.longitude).toFixed(3);
+      if (seen[key]) {
+        return false;
+      }
+      seen[key] = true;
+      return true;
+    });
+  }
+
+  function badgesFor(place) {
+    var labels = [];
+    if (place.accessible) {
+      labels.push("Accessible");
+    }
+    if (place.unisex) {
+      labels.push("All-gender");
+    }
+    if (place.changing_table) {
+      labels.push("Changing table");
+    }
+    if (!labels.length) {
+      return null;
+    }
+    var wrap = document.createElement("div");
+    wrap.className = "badges";
+    labels.forEach(function (label) {
+      var badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = label;
+      wrap.appendChild(badge);
+    });
+    return wrap;
+  }
+
+  function noteFor(place) {
+    var comment = clean(place.comment);
+    var directions = clean(place.directions);
+    if (!comment && !directions) {
+      return null;
+    }
+
+    var note = document.createElement("p");
+    note.className = "note";
+    if (directions && /^https?:\/\//i.test(directions)) {
+      if (comment) {
+        note.appendChild(document.createTextNode(comment + " "));
+      }
+      var link = document.createElement("a");
+      link.href = directions;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Directions";
+      note.appendChild(link);
+      return note;
+    }
+
+    note.textContent = [comment, directions].filter(Boolean).join(" ");
+    return note;
+  }
+
+  function actionButton(action, label) {
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "text-button";
+    button.setAttribute("data-action", action);
+    button.textContent = label;
+    return button;
+  }
+
+  function paragraph(className, text) {
+    var node = document.createElement("p");
+    node.className = className;
+    node.textContent = text;
+    return node;
+  }
+
+  function reviewItem(data) {
+    var item = document.createElement("article");
+    item.className = "review-item";
+    var heading = document.createElement("h3");
+    heading.textContent = clean(data.name) || "Anonymous";
+    var rating = document.createElement("p");
+    rating.textContent = "Rating: " + (clean(data.rating) || "—");
+    var body = document.createElement("p");
+    body.textContent = clean(data.review);
+    item.appendChild(heading);
+    item.appendChild(rating);
+    item.appendChild(body);
+    return item;
+  }
+
+  function popupHtml(name, address, distance) {
+    var html = "<strong>" + escapeHtml(name) + "</strong>";
+    if (address) {
+      html += "<br>" + escapeHtml(address);
+    }
+    if (distance) {
+      html += "<br>" + escapeHtml(distance + " away");
+    }
+    return html;
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function clean(value) {
+    return value == null ? "" : String(value).trim();
+  }
+
+  init();
+})();
