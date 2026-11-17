@@ -1,15 +1,16 @@
-// Public Firebase web config for the existing where2p-388bb review database.
-// These values identify the client app. They are not server secrets, and they
-// were already published in this repository. Who can read or write reviews is
-// decided by the project's Realtime Database rules, not by hiding this file.
+// Public Firebase web config for the where2p-e3170 review database
+// (Realtime Database in us-central1). These values identify the client app.
+// They are not server secrets. Who can read or write reviews is decided by
+// the project's Realtime Database rules, not by hiding this file.
 window.WHERE2P_CONFIG = {
   firebase: {
-    apiKey: "AIzaSyBWrFxW_77FLMcrt8WoixzkEPy6ClSu6f0",
-    authDomain: "where2p-388bb.firebaseapp.com",
-    databaseURL: "https://where2p-388bb.firebaseio.com",
-    projectId: "where2p-388bb",
-    storageBucket: "where2p-388bb.appspot.com",
-    messagingSenderId: "896023113193",
-    appId: "1:896023113193:web:5c255b734c84f410"
+    apiKey: "AIzaSyCCeiGkGvto69IzgB_BVIby2vlU_fBV15M",
+    authDomain: "where2p-e3170.firebaseapp.com",
+    databaseURL: "https://where2p-e3170-default-rtdb.firebaseio.com",
+    projectId: "where2p-e3170",
+    storageBucket: "where2p-e3170.firebasestorage.app",
+    messagingSenderId: "203792152294",
+    appId: "1:203792152294:web:56e130f89eb94bf43eed27",
+    measurementId: "G-XK50KSCZDJ"
   }
 };

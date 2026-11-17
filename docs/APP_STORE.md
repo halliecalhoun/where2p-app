@@ -190,7 +190,7 @@ Under **Data Not Linked to You**, declare:
 | Precise Location | App Functionality | "Use my location" and the launch lookup. Coordinates go to the Refuge Restrooms API. Not stored by Where2P. |
 | Coarse Location | App Functionality | The person can choose Approximate Location on the iOS prompt. Same use as precise. |
 | Search History | App Functionality | The city or address is sent to Photon (photon.komoot.io) to geocode. The last query also sits in session storage on the device. |
-| Name | App Functionality | The name someone types on a review. Stored in Firebase Realtime Database (`where2p-388bb`) and shown with the review. |
+| Name | App Functionality | The name someone types on a review. Stored in Firebase Realtime Database (`where2p-e3170`, us-central1) and shown with the review. |
 | Other User Content | App Functionality | The rating and review text, same Firebase path. |
 
 Do not declare email, phone, photos, health, financial info, contacts, browsing history, purchases, or diagnostics. Do not turn on tracking.
@@ -225,5 +225,5 @@ The Pages site does not use this command. Pushing `master` is still how the webs
 ## Known limits
 
 - Public OpenStreetMap tiles are what the site already uses. The tile servers are not meant for a large production app. Fine for a first build. If traffic grows, point Leaflet at a tile host that allows it.
-- Review access is `database.rules.json`. Publishing those rules is a Firebase console or CLI step, not an Xcode one. See the README. The hosted database is unchanged until they are published.
+- Review access is `database.rules.json` on the `where2p-e3170` Realtime Database (us-central1). Publishing those rules is a Firebase console or CLI step, not an Xcode one. See the README. The database is empty until the rules are published and someone leaves a review.
 - `NSLocationAlwaysAndWhenInUseUsageDescription` is present because `@capacitor/geolocation` 8 says the underlying iOS library requires the key. Do not add the location background mode.

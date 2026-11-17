@@ -32,7 +32,7 @@ Listings are community-submitted, so names and notes vary in quality. Refuge Res
 
 The map and the restroom list do not need an API key.
 
-Reviews use the existing Firebase project, `where2p-388bb`. Its web config lives in `js/config.js`. Those values identify the client app. They are not server secrets, and they were already in this repository. Who can read and write is decided by Realtime Database rules, in `database.rules.json`. Those rules are not live until they are published. Until then, the hosted database is unchanged.
+Reviews use the Firebase project `where2p-e3170`. Its web config lives in `js/config.js`. Those values identify the client app. They are not server secrets. Who can read and write is decided by Realtime Database rules, in `database.rules.json`. The database is in `us-central1` and is empty. Reviews can be saved after the rules below are published.
 
 ### Publish the review rules
 
@@ -46,14 +46,14 @@ The rules allow a public read of those `refuge-*` paths, allow a write only when
 
 Publish `database.rules.json` in either of these ways:
 
-1. Firebase Console > project `where2p-388bb` > Realtime Database > Rules. Paste the file, then click Publish.
+1. Firebase Console > project `where2p-e3170` > Realtime Database > Rules. Paste the file, then click Publish.
 2. From this folder, logged in to an account that can deploy that project:
 
 ```bash
 npx firebase-tools deploy --only database
 ```
 
-`firebase.json` points the CLI at `database.rules.json`. `.firebaserc` sets the default project to `where2p-388bb`.
+`firebase.json` points the CLI at `database.rules.json`. `.firebaserc` sets the default project to `where2p-e3170`.
 
 `npm run test:rules` starts the Realtime Database emulator and checks that a valid review write succeeds and that an overwrite, a delete, and an extra field are rejected.
 
