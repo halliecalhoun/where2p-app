@@ -225,5 +225,5 @@ The Pages site does not use this command. Pushing `master` is still how the webs
 ## Known limits
 
 - Public OpenStreetMap tiles are what the site already uses. The tile servers are not meant for a large production app. Fine for a first build. If traffic grows, point Leaflet at a tile host that allows it.
-- Reviews stay on the open Firebase rules described in the README. Tightening those rules is a Firebase console change, not an Xcode one.
+- Review access is `database.rules.json`. Publishing those rules is a Firebase console or CLI step, not an Xcode one. See the README. The hosted database is unchanged until they are published.
 - `NSLocationAlwaysAndWhenInUseUsageDescription` is present because `@capacitor/geolocation` 8 says the underlying iOS library requires the key. Do not add the location background mode.

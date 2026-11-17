@@ -8,7 +8,8 @@
     "ios:configure": "node scripts/configure-ios.mjs",
     "cap:sync": "npm run build:web && cap sync ios && npm run ios:configure",
     "cap:open": "cap open ios",
-    "ios": "npm run cap:sync && cap open ios"
+    "ios": "npm run cap:sync && cap open ios",
+    "test:rules": "firebase emulators:exec --only database --project demo-where2p \"node --test test/database.rules.test.mjs\""
   },
   "dependencies": {
     "@capacitor/browser": "^8.0.5",
@@ -21,6 +22,9 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^4.0.0",
-    "@capacitor/cli": "^8.6.2"
+    "@capacitor/cli": "^8.6.2",
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase": "^11.10.0",
+    "firebase-tools": "^15.36.0"
   }
 }
