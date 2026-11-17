@@ -12,7 +12,7 @@ Open `ios/App/App.xcodeproj`. The scheme is **App**. The name on the home screen
 
 | Setting | Value |
 | --- | --- |
-| Bundle id | `com.halliecalhoun.where2p` |
+| Bundle id | `com.where2p.where2p` |
 | Display name | Where2P |
 | Deployment target | iOS 15.0 |
 | Devices | iPhone only |
@@ -27,11 +27,11 @@ Open `ios/App/App.xcodeproj`. The scheme is **App**. The name on the home screen
 
 ## 2. Bundle id and display name
 
-`com.halliecalhoun.where2p` is a placeholder. Change it before you create the App ID if you want a different one. These three have to match:
+`com.where2p.where2p` is the App ID registered in the Apple Developer account and attached to the existing App Store Connect record named Where2P. These three have to match:
 
 1. `appId` in `capacitor.config.js`
 2. The App target in Xcode: **Signing & Capabilities**, Bundle Identifier
-3. The explicit App ID you register at [developer.apple.com/account/resources/identifiers](https://developer.apple.com/account/resources/identifiers/list)
+3. The App ID already registered at [developer.apple.com/account/resources/identifiers](https://developer.apple.com/account/resources/identifiers/list)
 
 `npx cap sync` does not rewrite the bundle id inside an existing Xcode project.
 

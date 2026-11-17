@@ -19,6 +19,7 @@
   var online = navigator.onLine !== false;
 
   function init() {
+    bindSkipLink();
     initMap();
     initFirebase();
     bindUi();
@@ -35,6 +36,55 @@
         map.invalidateSize();
       }
     });
+  }
+
+  // Nothing in this file focuses the skip link. WKWebView can still focus the
+  // first link on launch, and some engines treat that as :focus-visible, so
+  // the pill stays clipped unless Tab moved focus here. Drop that launch focus.
+  function bindSkipLink() {
+    var skip = document.querySelector(".skip-link");
+    if (!skip) {
+      return;
+    }
+    var fromTab = false;
+    var blockAutofocus = true;
+    window.setTimeout(function () {
+      blockAutofocus = false;
+    }, 1000);
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Tab") {
+        fromTab = true;
+        blockAutofocus = false;
+      }
+    }, true);
+    function dropLaunchFocus() {
+      skip.classList.remove("is-keyboard-focus");
+      // blur() alone leaves the skip link as the next Tab start, so the
+      // first real Tab would skip past it. Park focus on the body instead.
+      if (!document.body.hasAttribute("tabindex")) {
+        document.body.setAttribute("tabindex", "-1");
+        document.body.focus();
+        document.body.removeAttribute("tabindex");
+      } else {
+        skip.blur();
+      }
+    }
+    document.addEventListener("focusin", function (event) {
+      if (event.target === skip && fromTab) {
+        skip.classList.add("is-keyboard-focus");
+      } else if (event.target === skip && blockAutofocus) {
+        dropLaunchFocus();
+      } else if (event.target !== skip) {
+        skip.classList.remove("is-keyboard-focus");
+      }
+      fromTab = false;
+    }, true);
+    skip.addEventListener("blur", function () {
+      skip.classList.remove("is-keyboard-focus");
+    });
+    if (document.activeElement === skip) {
+      dropLaunchFocus();
+    }
   }
 
   function initMap() {

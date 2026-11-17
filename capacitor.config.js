@@ -1,15 +1,16 @@
 /**
- * iOS identity. `appId` is the bundle id placeholder.
+ * iOS identity. `appId` is the bundle id registered for the existing
+ * Where2P App Store Connect app.
  *
- * To use a different id, change `appId` here AND the Xcode target's
- * Bundle Identifier (App target → Signing & Capabilities, or General →
- * Identity). They must match the App ID in the Apple Developer portal.
- * `npx cap sync` copies this file into the app, but it does not rewrite
- * an existing Xcode bundle id. Display name is `appName` here and
- * CFBundleDisplayName in ios/App/App/Info.plist. See docs/APP_STORE.md.
+ * It must match the Xcode target's Bundle Identifier (App target →
+ * Signing & Capabilities, or General → Identity) and the App ID in the
+ * Apple Developer portal. `npx cap sync` copies this file into the app,
+ * but it does not rewrite an existing Xcode bundle id. Display name is
+ * `appName` here and CFBundleDisplayName in ios/App/App/Info.plist.
+ * See docs/APP_STORE.md.
  */
 const config = {
-  appId: "com.halliecalhoun.where2p",
+  appId: "com.where2p.where2p",
   appName: "Where2P",
   webDir: "www",
   backgroundColor: "#007c91",
@@ -28,6 +29,9 @@ const config = {
     SplashScreen: {
       launchShowDuration: 800,
       launchAutoHide: true,
+      // Same teal as the splash artwork and LaunchScreen.storyboard.
+      // iOS draws that image with scaleAspectFit, so this color fills the
+      // bars around the square logo instead of cropping it.
       backgroundColor: "#007c91",
       showSpinner: false,
     },
