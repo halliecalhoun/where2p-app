@@ -16,13 +16,25 @@
   var busyId = 0;
   var activeReview = null;
   var lastFocus = null;
+  var online = navigator.onLine !== false;
 
   function init() {
     initMap();
     initFirebase();
     bindUi();
+    bindNetwork();
     setListMessage("Restrooms will show up here after you share your location or search.");
-    restoreOrLocate();
+    var ready = window.Where2PNative && window.Where2PNative.ready;
+    if (ready && typeof ready.then === "function") {
+      ready.then(restoreOrLocate);
+    } else {
+      restoreOrLocate();
+    }
+    window.addEventListener("resize", function () {
+      if (map) {
+        map.invalidateSize();
+      }
+    });
   }
 
   function initMap() {
@@ -151,37 +163,92 @@
 
   function locate() {
     var id = ++requestId;
-    if (!navigator.geolocation) {
+    if (!canLocate()) {
       setStatus("This browser can't share location. Search for a city or address instead.");
+      return;
+    }
+    if (!isOnline()) {
+      setStatus("You're offline. Reconnect, then try location again.");
       return;
     }
 
     setStatus("Finding your location…");
     setOriginLegend("You");
 
-    navigator.geolocation.getCurrentPosition(function (position) {
+    requestPosition().then(function (position) {
       if (id !== requestId) {
+        return;
+      }
+      var coords = position && position.coords;
+      if (!coords || !isFinite(coords.latitude) || !isFinite(coords.longitude)) {
+        setStatus(locationErrorMessage({ code: 2 }));
         return;
       }
       setBusy(true, id);
-      loadRestrooms(position.coords.latitude, position.coords.longitude, "you", id);
-    }, function () {
+      loadRestrooms(coords.latitude, coords.longitude, "you", id);
+    }).catch(function (error) {
       if (id !== requestId) {
         return;
       }
-      setStatus("Location is blocked or unavailable. Search for a city or address instead.");
+      setStatus(locationErrorMessage(error));
       if (!document.querySelector(".restroom-card")) {
         setListMessage("Search for a city or address and restrooms will be listed here.");
       }
-    }, {
-      enableHighAccuracy: false,
-      timeout: 8000,
-      maximumAge: 60000
     });
+  }
+
+  function canLocate() {
+    var native = window.Where2PNative;
+    if (native && native.isNative && typeof native.getCurrentPosition === "function") {
+      return true;
+    }
+    return !!navigator.geolocation;
+  }
+
+  function requestPosition() {
+    var native = window.Where2PNative;
+    var options = {
+      enableHighAccuracy: false,
+      timeout: 20000,
+      maximumAge: 60000
+    };
+    if (native && native.isNative && typeof native.getCurrentPosition === "function") {
+      return native.getCurrentPosition(options);
+    }
+    return new Promise(function (resolve, reject) {
+      navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    });
+  }
+
+  function locationErrorMessage(error) {
+    var native = window.Where2PNative && window.Where2PNative.isNative;
+    var code = error && error.code;
+    var message = error && error.message ? String(error.message) : "";
+    var blob = String(code == null ? "" : code) + " " + message;
+    var lower = blob.toLowerCase();
+    if (code === "unsupported" || lower.indexOf("not implemented") !== -1) {
+      return "This device can't share location. Search for a city or address instead.";
+    }
+    if (lower.indexOf("not enabled") !== -1 || lower.indexOf("disabled") !== -1 || lower.indexOf("0007") !== -1) {
+      return "Location services are turned off. Search for a city or address instead.";
+    }
+    if (code === 1 || lower.indexOf("denied") !== -1 || lower.indexOf("restricted") !== -1 || lower.indexOf("0003") !== -1 || lower.indexOf("0008") !== -1) {
+      return native
+        ? "Location is blocked. Allow location for Where2P in Settings, or search for a city or address."
+        : "Location is blocked or unavailable. Search for a city or address instead.";
+    }
+    if (code === 3 || lower.indexOf("timeout") !== -1 || lower.indexOf("0010") !== -1) {
+      return "Couldn't get a location in time. Search for a city or address instead.";
+    }
+    return "Location is unavailable. Search for a city or address instead.";
   }
 
   function searchPlace(query) {
     var id = ++requestId;
+    if (!isOnline()) {
+      setStatus("You're offline. Reconnect, then try that search again.");
+      return;
+    }
     setBusy(true, id);
     setStatus("Looking up " + query + "…");
     setOriginLegend("Searched spot");
@@ -219,7 +286,9 @@
           return;
         }
         setBusy(false, id);
-        setStatus("That search didn't go through. Check your connection and try again.");
+        setStatus(isOnline()
+          ? "That search didn't go through. Check your connection and try again."
+          : "You're offline. Reconnect, then try that search again.");
       });
   }
 
@@ -408,7 +477,9 @@
 
     if (!database) {
       list.replaceChildren();
-      list.appendChild(paragraph("empty", "Reviews are unavailable right now."));
+      list.appendChild(paragraph("empty", isOnline()
+        ? "Reviews are unavailable right now."
+        : "You're offline, so reviews can't load."));
       return;
     }
 
@@ -430,7 +501,9 @@
       }
     }).catch(function () {
       list.replaceChildren();
-      list.appendChild(paragraph("empty", "Reviews are unavailable right now."));
+      list.appendChild(paragraph("empty", isOnline()
+        ? "Reviews are unavailable right now."
+        : "You're offline, so reviews can't load."));
     });
   }
 
@@ -450,6 +523,10 @@
 
     if (!name || !review) {
       error.textContent = "Add your name and a short review.";
+      return;
+    }
+    if (!isOnline()) {
+      error.textContent = "You're offline. Reconnect, then try saving that review again.";
       return;
     }
     if (!activeReview || !database) {
@@ -510,9 +587,35 @@
   }
 
   function showDirectoryError() {
-    setStatus("The restroom directory didn't respond. Try again in a moment.");
+    var message = isOnline()
+      ? "The restroom directory didn't respond. Try again in a moment."
+      : "You're offline. Reconnect, then try that search again.";
+    setStatus(message);
     document.getElementById("results-count").textContent = "";
-    setListMessage("The restroom directory didn't respond. Try again in a moment.");
+    setListMessage(message);
+  }
+
+  function bindNetwork() {
+    var native = window.Where2PNative;
+    if (native && typeof native.isOnline === "boolean") {
+      online = native.isOnline;
+    }
+    applyOnline();
+    window.addEventListener("where2p-network", function (event) {
+      online = !!(event.detail && event.detail.connected);
+      applyOnline();
+    });
+  }
+
+  function applyOnline() {
+    var banner = document.getElementById("offline-banner");
+    if (banner) {
+      banner.hidden = online;
+    }
+  }
+
+  function isOnline() {
+    return online;
   }
 
   function setListMessage(message) {

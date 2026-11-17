@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Privacy policy for the Where2P website and iOS app.">
+  <meta name="theme-color" content="#007c91">
+  <title>Privacy policy — Where2P</title>
+  <link rel="icon" href="images/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <a href="index.html"><img src="images/logo.png" alt="Where2P" width="148" height="42"></a>
+      <p class="slogan">where 2 go on the go</p>
+    </div>
+    <nav aria-label="On this page">
+      <a href="index.html">Find a restroom</a>
+    </nav>
+  </header>
+
+  <main class="prose">
+    <h1>Privacy policy</h1>
+    <p>Effective November 17, 2026.</p>
+    <p>
+      This policy covers the Where2P website and the Where2P iOS app. Where2P helps you find a public restroom, see it on a map, and read or leave a review. There is no account.
+    </p>
+
+    <h2>Location</h2>
+    <p>
+      When you open Where2P, or when you tap “Use my location,” the app reads your location so it can search for restrooms near you. On iPhone that read uses Apple location services, and only while you are using the app. Where2P does not track location in the background and does not store your coordinates on a server of its own.
+    </p>
+    <p>
+      The coordinates are sent to the <a href="https://www.refugerestrooms.org/">Refuge Restrooms</a> API as the search point for nearby listings. You can deny location permission and search for a city or address instead. The rest of the app still works.
+    </p>
+
+    <h2>Searches</h2>
+    <p>
+      A city or address you type is sent to the Photon geocoder at photon.komoot.io, operated by Komoot, which turns it into coordinates. The last search is kept in session storage on your device so a reload can restore it. That saved search is not sent to Firebase.
+    </p>
+
+    <h2>Reviews</h2>
+    <p>
+      If you leave a review, the name you type, the rating, and the review text are saved in Google Firebase Realtime Database, in the existing <code>where2p-388bb</code> project. Reviews are stored so other people using Where2P can read them. They are public. Don't put anything in a review that you don't want other people to see. Where2P does not ask for an email address or a password.
+    </p>
+
+    <h2>Map, fonts, and libraries</h2>
+    <p>
+      The map loads tiles from the OpenStreetMap tile servers. The page loads the Leaflet library from cdnjs, the Firebase client library from Google, and the Poppins font from Google Fonts. Those requests include your IP address, because that is how a browser fetches a file. Where2P does not add an advertising or analytics SDK.
+    </p>
+
+    <h2>Tracking</h2>
+    <p>
+      Where2P does not track you across other companies' apps or websites, and it does not use your information for advertising.
+    </p>
+
+    <h2>Children</h2>
+    <p>Where2P is not directed at children under 13.</p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions about this policy can go to the project issues list:
+      <a href="https://github.com/halliecalhoun/where2p-app/issues">github.com/halliecalhoun/where2p-app/issues</a>.
+    </p>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      <a href="index.html">Where2P</a>
+      · Listings from <a href="https://www.refugerestrooms.org/">Refuge Restrooms</a>.
+      Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
+    </p>
+  </footer>
+</body>
+</html>
