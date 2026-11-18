@@ -16,7 +16,7 @@ Open `ios/App/App.xcodeproj`. The scheme is **App**. The name on the home screen
 | Display name | Where2P |
 | Deployment target | iOS 15.0 |
 | Devices | iPhone only |
-| Version | 1.0 (build 1) |
+| Version | 1.0 (build 2) |
 | Signing | Automatic, no team set |
 
 ## 1. Tools
@@ -48,7 +48,7 @@ npm install
 npm run cap:sync
 ```
 
-`cap:sync` copies the site, refreshes the Swift package list, and re-applies the location and export keys in `Info.plist`. After any change to HTML, CSS, or JS, run it again before you archive. The installed app does not load the GitHub Pages URL. A web change reaches phones only in a new build.
+`cap:sync` copies the site, including the current `js/config.js` for the `where2p-e3170` Realtime Database, refreshes the Swift package list, and re-applies the location and export keys in `Info.plist`. `scripts/copy-web.mjs` stops if that config file is not the `where2p-e3170` web config. After any change to HTML, CSS, or JS, run it again before you archive. The installed app does not load the GitHub Pages URL. A web change reaches phones only in a new build.
 
 Open the project:
 
@@ -129,7 +129,7 @@ Where2P helps you find a public restroom while you are out.
 
 Search for a city or address, or use your current location. Nearby listings show up in a list and on a map, with distance and details such as accessible, all-gender, and changing table when the listing includes them.
 
-Read reviews from other people, or leave your own. No account is required.
+Read reviews from other people, or leave your own. No account is required. You can report a review or block a reviewer. Objectionable reviews are removed.
 
 Listings come from Refuge Restrooms. The map is OpenStreetMap. Names and notes are community-submitted, so they vary.
 
@@ -159,9 +159,13 @@ App previews are optional. Skip them.
 
 Answer **None** for violence, sexual content, profanity, substances, horror, gambling, contests, and unrestricted web access. External links open Refuge Restrooms, OpenStreetMap, and the occasional directions URL. That is not a general browser.
 
-Answer **Yes** to user-generated content. Reviews are public text with a display name. There is no account, no filter, no report button, and no block list.
+Answer **Yes** to user-generated content. Reviews are public text with a display name. There is no account. The app meets [guideline 1.2](https://developer.apple.com/app-store/review/guidelines/#user-generated-content) as follows:
 
-That is a real rejection risk under [guideline 1.2](https://developer.apple.com/app-store/review/guidelines/#user-generated-content). Apple expects a way to filter objectionable reviews, a way to report them, a way to block someone, and a published contact. This app does not have those. If you would rather not argue that point, hide the review buttons in the iOS build before you submit. The contact on the privacy page is the GitHub issues list.
+- **Report.** Every review has a Report control. Tapping it asks for confirmation and an optional reason (200 characters or fewer). Confirming hides that review on the device (local storage) and writes a create-only record at `reports/<id>` in Firebase with `restroomId`, `reviewId`, `createdAt`, and the optional `reason`. Clients cannot read, edit, or delete reports.
+- **Block.** Block reviewer hides every review with that display name on the device. The match ignores letter case. Reset hidden reviews, in the footer, clears reported reviews and blocked names on that device.
+- **Contact and removal.** The review form says reviews must be respectful and that objectionable content will be removed. The contact is hallieacalhoun@gmail.com, also on the privacy page. Read reports in the Firebase console (admin access bypasses the client rules) and delete the review there.
+
+Republish `database.rules.json` in the Firebase console for `where2p-e3170` after this change is merged, before you submit. Until those rules are live, Report still hides the review on the device, but the report write is rejected.
 
 ### Review notes
 
@@ -170,9 +174,11 @@ Paste this into App Review Information. There is no demo account.
 ```
 Where2P finds public restrooms. No account.
 
-Location: iOS asks on launch so the app can search near you. Denying permission is fine. Search for Austin, TX instead. Location is when-in-use only. It is sent to the Refuge Restrooms API as the search point and is not stored by us.
+Location: iOS asks on launch so the app can search near you. Denying permission is fine. Search for Austin, TX instead. Location is when-in-use only (Core Location through Capacitor Geolocation). It is sent to the Refuge Restrooms API as the search point and is not stored by us. A typed city or address is geocoded with Photon (photon.komoot.io).
 
-The map is Leaflet on OpenStreetMap. Search uses the Photon geocoder. Reviews, if you leave one, save a name, rating, and text to Firebase.
+The map is Leaflet 1.9.4 with OpenStreetMap tiles (tile.openstreetmap.org). Where2P does not use Google Maps or Apple Maps. Listings come from the Refuge Restrooms API. If a listing includes a directions URL, that link opens as written (Safari View on iOS). Other direction notes are plain text.
+
+Reviews are user-generated (name, rating, and text in Firebase Realtime Database, project where2p-e3170). Every review has Report and Block reviewer. Report asks you to confirm, then hides that review on the device and sends a create-only report we read in the Firebase console. Block reviewer hides that display name on the device, ignoring letter case. Reset hidden reviews is in the footer. The review form says reviews must be respectful and that objectionable content will be removed. Contact: hallieacalhoun@gmail.com.
 
 Footer links open in Safari View. Airplane mode shows an offline message. Search, the map, and reviews need a connection.
 ```
@@ -191,7 +197,7 @@ Under **Data Not Linked to You**, declare:
 | Coarse Location | App Functionality | The person can choose Approximate Location on the iOS prompt. Same use as precise. |
 | Search History | App Functionality | The city or address is sent to Photon (photon.komoot.io) to geocode. The last query also sits in session storage on the device. |
 | Name | App Functionality | The name someone types on a review. Stored in Firebase Realtime Database (`where2p-e3170`, us-central1) and shown with the review. |
-| Other User Content | App Functionality | The rating and review text, same Firebase path. |
+| Other User Content | App Functionality | The rating and review text, same Firebase path. A report may include an optional reason (200 characters or fewer) under `reports/`. Clients cannot read reports. |
 
 Do not declare email, phone, photos, health, financial info, contacts, browsing history, purchases, or diagnostics. Do not turn on tracking.
 
@@ -225,5 +231,5 @@ The Pages site does not use this command. Pushing `master` is still how the webs
 ## Known limits
 
 - Public OpenStreetMap tiles are what the site already uses. The tile servers are not meant for a large production app. Fine for a first build. If traffic grows, point Leaflet at a tile host that allows it.
-- Review access is `database.rules.json` on the `where2p-e3170` Realtime Database (us-central1). Publishing those rules is a Firebase console or CLI step, not an Xcode one. See the README. The database is empty until the rules are published and someone leaves a review.
+- Review and report access is `database.rules.json` on the `where2p-e3170` Realtime Database (us-central1). Publishing those rules is a Firebase console or CLI step, not an Xcode one. See the README. After this file changes on `master`, republish it in the Firebase console (Realtime Database → Rules → Publish) or with `npx firebase-tools deploy --only database` before you submit the build. Report writes fail until that publish. Hiding a review on the device does not. The database is empty until the rules are published and someone leaves a review.
 - `NSLocationAlwaysAndWhenInUseUsageDescription` is present because `@capacitor/geolocation` 8 says the underlying iOS library requires the key. Do not add the location background mode.

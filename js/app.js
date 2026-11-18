@@ -4,6 +4,8 @@
   var REFUGE_ENDPOINT = "https://www.refugerestrooms.org/api/v1/restrooms/by_location";
   var GEOCODE_ENDPOINT = "https://photon.komoot.io/api/";
   var STORAGE_KEY = "where2p:last-query";
+  var HIDDEN_REVIEWS_KEY = "where2p:hidden-reviews";
+  var BLOCKED_NAMES_KEY = "where2p:blocked-names";
 
   var map = null;
   var restroomLayer = null;
@@ -15,6 +17,9 @@
   var requestId = 0;
   var busyId = 0;
   var activeReview = null;
+  var loadedReviews = { restroomId: "", entries: [] };
+  var hiddenReviewIds = readJsonList(HIDDEN_REVIEWS_KEY);
+  var blockedNames = readJsonList(BLOCKED_NAMES_KEY);
   var lastFocus = null;
   var online = navigator.onLine !== false;
 
@@ -171,6 +176,9 @@
     });
 
     document.getElementById("review-form").addEventListener("submit", submitReview);
+    document.getElementById("reviews-list").addEventListener("click", onReviewClick);
+    document.getElementById("reviews-list").addEventListener("submit", onReportSubmit);
+    document.getElementById("reset-hidden").addEventListener("click", resetHiddenReviews);
 
     document.querySelectorAll("[data-close]").forEach(function (button) {
       button.addEventListener("click", function () {
@@ -519,7 +527,9 @@
 
   function openReviews(id, name) {
     activeReview = { id: id, name: name };
+    loadedReviews = { restroomId: "", entries: [] };
     document.getElementById("reviews-title").textContent = "Reviews for " + name;
+    setReviewsStatus("");
     var list = document.getElementById("reviews-list");
     list.replaceChildren();
     list.appendChild(paragraph("empty", "Loading reviews…"));
@@ -534,22 +544,26 @@
     }
 
     database.ref(reviewPath(id)).once("value").then(function (snapshot) {
-      list.replaceChildren();
-      if (!snapshot.exists()) {
-        list.appendChild(paragraph("empty", "No reviews yet. Be the first to add one."));
+      if (!activeReview || activeReview.id !== id) {
         return;
       }
-      snapshot.forEach(function (child) {
-        var data = child.val();
-        if (!data || typeof data !== "object") {
-          return;
-        }
-        list.appendChild(reviewItem(data));
-      });
-      if (!list.childElementCount) {
-        list.appendChild(paragraph("empty", "No reviews yet. Be the first to add one."));
+      var entries = [];
+      if (snapshot.exists()) {
+        snapshot.forEach(function (child) {
+          var data = child.val();
+          if (!data || typeof data !== "object" || !child.key) {
+            return;
+          }
+          entries.push({ id: child.key, data: data });
+        });
       }
+      loadedReviews = { restroomId: id, entries: entries };
+      renderLoadedReviews(false);
     }).catch(function () {
+      if (!activeReview || activeReview.id !== id) {
+        return;
+      }
+      loadedReviews = { restroomId: "", entries: [] };
       list.replaceChildren();
       list.appendChild(paragraph("empty", isOnline()
         ? "Reviews are unavailable right now."
@@ -845,18 +859,282 @@
     return node;
   }
 
-  function reviewItem(data) {
+  function onReviewClick(event) {
+    var button = event.target.closest("[data-action]");
+    if (!button) {
+      return;
+    }
+    var item = button.closest(".review-item");
+    if (!item) {
+      return;
+    }
+    var action = button.getAttribute("data-action");
+    if (action === "report") {
+      showReportConfirm(item);
+    } else if (action === "block") {
+      showBlockConfirm(item);
+    } else if (action === "cancel-report" || action === "cancel-block") {
+      restoreReviewItem(item);
+    } else if (action === "confirm-block") {
+      blockReviewer(item.getAttribute("data-reviewer"));
+    }
+  }
+
+  function onReportSubmit(event) {
+    var form = event.target;
+    if (!form || form.getAttribute("data-action") !== "confirm-report") {
+      return;
+    }
+    event.preventDefault();
+    var item = form.closest(".review-item");
+    if (!item || !loadedReviews.restroomId) {
+      return;
+    }
+    var reviewId = item.getAttribute("data-review-id");
+    var input = form.querySelector("input[name='reason']");
+    var reason = input ? input.value.trim().slice(0, 200) : "";
+    var submitButton = form.querySelector("button[type='submit']");
+    if (submitButton) {
+      submitButton.disabled = true;
+    }
+    rememberHidden(loadedReviews.restroomId, reviewId);
+    renderLoadedReviews(true);
+    setReviewsStatus("Review hidden on this device.");
+    writeReport(loadedReviews.restroomId, reviewId, reason);
+  }
+
+  function showReportConfirm(item) {
+    var actions = item.querySelector(".review-actions");
+    actions.replaceChildren();
+    var form = document.createElement("form");
+    form.className = "report-confirm";
+    form.setAttribute("data-action", "confirm-report");
+    var lead = document.createElement("p");
+    lead.textContent = "Report this review? It will be hidden on this device.";
+    var label = document.createElement("label");
+    label.textContent = "Reason (optional)";
+    var input = document.createElement("input");
+    input.type = "text";
+    input.name = "reason";
+    input.maxLength = 200;
+    input.autocomplete = "off";
+    label.appendChild(input);
+    var row = document.createElement("div");
+    row.className = "review-actions";
+    var submit = document.createElement("button");
+    submit.type = "submit";
+    submit.className = "text-button";
+    submit.textContent = "Report";
+    row.appendChild(submit);
+    row.appendChild(actionButton("cancel-report", "Cancel"));
+    form.appendChild(lead);
+    form.appendChild(label);
+    form.appendChild(row);
+    actions.appendChild(form);
+    input.focus();
+  }
+
+  function showBlockConfirm(item) {
+    var actions = item.querySelector(".review-actions");
+    var name = item.getAttribute("data-reviewer") || "this reviewer";
+    actions.replaceChildren();
+    var box = document.createElement("div");
+    box.className = "report-confirm";
+    var lead = document.createElement("p");
+    lead.textContent = "Block " + name + "? Reviews with that name will be hidden on this device.";
+    var row = document.createElement("div");
+    row.className = "review-actions";
+    row.appendChild(actionButton("confirm-block", "Block reviewer"));
+    row.appendChild(actionButton("cancel-block", "Cancel"));
+    box.appendChild(lead);
+    box.appendChild(row);
+    actions.appendChild(box);
+    row.querySelector("button").focus();
+  }
+
+  function restoreReviewItem(item) {
+    var entry = findLoadedReview(item.getAttribute("data-review-id"));
+    if (!entry) {
+      return;
+    }
+    item.replaceWith(reviewItem(entry.id, entry.data));
+  }
+
+  function blockReviewer(name) {
+    if (!loadedReviews.restroomId) {
+      return;
+    }
+    rememberBlocked(name);
+    renderLoadedReviews(true);
+    var message = "Reviews from " + (clean(name) || "that reviewer") + " are hidden on this device.";
+    setReviewsStatus(message);
+    setStatus(message);
+  }
+
+  function renderLoadedReviews(moveFocus) {
+    var list = document.getElementById("reviews-list");
+    list.replaceChildren();
+    var shown = 0;
+    loadedReviews.entries.forEach(function (entry) {
+      var data = entry.data || {};
+      if (isHiddenReview(loadedReviews.restroomId, entry.id, data.name)) {
+        return;
+      }
+      list.appendChild(reviewItem(entry.id, data));
+      shown += 1;
+    });
+    if (!shown) {
+      list.appendChild(paragraph("empty", loadedReviews.entries.length
+        ? "No reviews to show. Reset hidden reviews in the footer to see them again."
+        : "No reviews yet. Be the first to add one."));
+    }
+    if (moveFocus) {
+      var title = document.getElementById("reviews-title");
+      title.setAttribute("tabindex", "-1");
+      title.focus();
+    }
+  }
+
+  function findLoadedReview(id) {
+    for (var i = 0; i < loadedReviews.entries.length; i += 1) {
+      if (loadedReviews.entries[i].id === id) {
+        return loadedReviews.entries[i];
+      }
+    }
+    return null;
+  }
+
+  function writeReport(restroomId, reviewId, reason) {
+    var record = {
+      restroomId: reviewPath(restroomId),
+      reviewId: String(reviewId),
+      createdAt: Date.now()
+    };
+    if (reason) {
+      record.reason = reason;
+    }
+    var hidden = "Review hidden on this device. The report could not be sent.";
+    if (!database || !isOnline()) {
+      setReviewsStatus(hidden);
+      setStatus(hidden);
+      return;
+    }
+    database.ref("reports").push(record).then(function () {
+      var sent = "Review reported and hidden on this device.";
+      setReviewsStatus(sent);
+      setStatus(sent);
+    }).catch(function () {
+      setReviewsStatus(hidden);
+      setStatus(hidden);
+    });
+  }
+
+  function rememberHidden(restroomId, reviewId) {
+    var key = hiddenReviewKey(restroomId, reviewId);
+    if (hiddenReviewIds.indexOf(key) !== -1) {
+      return;
+    }
+    hiddenReviewIds.push(key);
+    writeJsonList(HIDDEN_REVIEWS_KEY, hiddenReviewIds);
+  }
+
+  function rememberBlocked(name) {
+    var normalized = normalizeName(name);
+    if (!normalized || blockedNames.indexOf(normalized) !== -1) {
+      return;
+    }
+    blockedNames.push(normalized);
+    writeJsonList(BLOCKED_NAMES_KEY, blockedNames);
+  }
+
+  function hiddenReviewKey(restroomId, reviewId) {
+    return reviewPath(restroomId) + "/" + String(reviewId);
+  }
+
+  function isHiddenReview(restroomId, reviewId, name) {
+    if (hiddenReviewIds.indexOf(hiddenReviewKey(restroomId, reviewId)) !== -1) {
+      return true;
+    }
+    var normalized = normalizeName(name);
+    return !!normalized && blockedNames.indexOf(normalized) !== -1;
+  }
+
+  function normalizeName(name) {
+    return clean(name).toLowerCase();
+  }
+
+  function resetHiddenReviews() {
+    hiddenReviewIds = [];
+    blockedNames = [];
+    try {
+      localStorage.removeItem(HIDDEN_REVIEWS_KEY);
+      localStorage.removeItem(BLOCKED_NAMES_KEY);
+    } catch (error) {
+      // The in-memory lists are already clear for this page view.
+    }
+    setStatus("Hidden reviews are visible again.");
+    setReviewsStatus("");
+    var modal = document.getElementById("reviews-modal");
+    if (modal && !modal.hidden && loadedReviews.restroomId) {
+      renderLoadedReviews(false);
+    }
+  }
+
+  function readJsonList(key) {
+    try {
+      var parsed = JSON.parse(localStorage.getItem(key) || "[]");
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+      return parsed.filter(function (value) {
+        return typeof value === "string";
+      });
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function writeJsonList(key, values) {
+    try {
+      localStorage.setItem(key, JSON.stringify(values));
+    } catch (error) {
+      // The in-memory list still hides reviews for this page view.
+    }
+  }
+
+  function setReviewsStatus(message) {
+    var node = document.getElementById("reviews-status");
+    if (node) {
+      node.textContent = message;
+    }
+  }
+
+  function reviewItem(reviewId, data) {
     var item = document.createElement("article");
     item.className = "review-item";
+    item.setAttribute("data-review-id", reviewId);
+    var name = clean(data.name);
+    item.setAttribute("data-reviewer", name);
     var heading = document.createElement("h3");
-    heading.textContent = clean(data.name) || "Anonymous";
+    heading.textContent = name || "Anonymous";
     var rating = document.createElement("p");
     rating.textContent = "Rating: " + (clean(data.rating) || "—");
     var body = document.createElement("p");
     body.textContent = clean(data.review);
+    var actions = document.createElement("div");
+    actions.className = "review-actions";
+    var report = actionButton("report", "Report");
+    report.setAttribute("aria-label", "Report review by " + (name || "Anonymous"));
+    actions.appendChild(report);
+    if (name) {
+      var block = actionButton("block", "Block reviewer");
+      block.setAttribute("aria-label", "Block reviewer " + name);
+      actions.appendChild(block);
+    }
     item.appendChild(heading);
     item.appendChild(rating);
     item.appendChild(body);
+    item.appendChild(actions);
     return item;
   }
 
