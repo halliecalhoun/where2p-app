@@ -42,7 +42,9 @@ The app reads one path per restroom, `refuge-<id>` (`reviewPath` in `js/app.js`)
 - `rating`: one of the form's option strings, `"0.5"` through `"5"` in half-star steps (the select value, not a number)
 - `review`: string, 1–1000 characters
 
-The rules allow a public read of those `refuge-*` paths, allow a write only when it creates a new review with those fields (`!data.exists()`), and deny every other read or write. There is no timestamp and no restroom id on the review record. The restroom id is the path key.
+The rules allow a public read of those `refuge-*` paths and a write only when it creates a new review with those fields (`!data.exists()`). There is no timestamp and no restroom id on the review record. The restroom id is the path key. Clients cannot update or delete a review, and they cannot add fields.
+
+Reports live at `reports/<id>`. A report is create-only, with `restroomId` (the `refuge-…` key), `reviewId`, `createdAt` (a number), and an optional `reason` of at most 200 characters. Nothing under `reports` is publicly readable. Clients cannot update or delete a report. Republish `database.rules.json` in the Firebase console after that file changes. Admin access in the console can still read reports and remove a review.
 
 Publish `database.rules.json` in either of these ways:
 
@@ -55,7 +57,7 @@ npx firebase-tools deploy --only database
 
 `firebase.json` points the CLI at `database.rules.json`. `.firebaserc` sets the default project to `where2p-e3170`.
 
-`npm run test:rules` starts the Realtime Database emulator and checks that a valid review write succeeds and that an overwrite, a delete, and an extra field are rejected.
+`npm run test:rules` starts the Realtime Database emulator and checks that a valid review write succeeds and that an overwrite, a delete, and an extra field are rejected. It also checks that a report can be created and cannot be read, updated, or deleted.
 
 Nothing else needs to be filled in before the site works. The old Google Maps key no longer returns results because billing is not enabled on that Cloud project. The Yelp API cannot be called from a GitHub Pages site, and the token that used to be hardcoded in `js/app.js` was still accepted by Yelp, so it should be revoked in the [Yelp developer dashboard](https://www.yelp.com/developers/v3/manage_app).
 

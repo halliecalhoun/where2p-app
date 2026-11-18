@@ -80,6 +80,7 @@
       Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors.
       <a href="privacy.html">Privacy</a>
     </p>
+    <p><button class="text-button footer-reset" type="button" id="reset-hidden">Reset hidden reviews</button></p>
   </footer>
 
   <div id="review-modal" class="modal" hidden>
@@ -89,6 +90,7 @@
         <button class="close" type="button" data-close="review-modal" aria-label="Close">&times;</button>
       </div>
       <form id="review-form" novalidate>
+        <p class="form-note">Reviews must be respectful. Objectionable content will be removed. To report a review, email <a href="mailto:hallieacalhoun@gmail.com">hallieacalhoun@gmail.com</a>.</p>
         <div class="field">
           <label for="user-name">Name</label>
           <input id="user-name" type="text" maxlength="80" autocomplete="nickname" required>
@@ -125,6 +127,7 @@
         <button class="close" type="button" data-close="reviews-modal" aria-label="Close">&times;</button>
       </div>
       <div id="reviews-list"></div>
+      <p id="reviews-status" class="reviews-status" role="status"></p>
     </div>
   </div>
 

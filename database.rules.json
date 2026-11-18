@@ -2,6 +2,30 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "reports": {
+      ".read": false,
+      ".write": false,
+      "$reportId": {
+        ".read": false,
+        ".write": "!data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['restroomId', 'reviewId', 'createdAt'])",
+        "restroomId": {
+          ".validate": "newData.isString() && newData.val().beginsWith('refuge-') && newData.val().length > 7 && newData.val().length <= 200"
+        },
+        "reviewId": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+        },
+        "reason": {
+          ".validate": "newData.isString() && newData.val().length <= 200"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
     "$restroomId": {
       ".read": "$restroomId.beginsWith('refuge-') && $restroomId.length > 7",
       ".write": false,

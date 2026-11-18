@@ -556,6 +556,12 @@ a {
   color: var(--danger);
 }
 
+.form-note {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .review-item {
   padding: 12px 0;
   border-bottom: 1px solid var(--line);
@@ -568,6 +574,48 @@ a {
 
 .review-item h3 {
   font-size: 1rem;
+}
+
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.report-confirm {
+  flex: 1 1 100%;
+}
+
+.report-confirm p,
+.report-confirm label {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+}
+
+.report-confirm input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 4px 0 8px;
+  padding: 10px 12px;
+  border: 1px solid #b7c4c7;
+  border-radius: 8px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+}
+
+.reviews-status {
+  min-height: 1.3em;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.footer-reset {
+  min-height: 44px;
+  padding: 8px 0;
+  font-size: inherit;
 }
 
 body.modal-open {

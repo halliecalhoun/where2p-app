@@ -13,6 +13,10 @@ import {
 // value, a string ("0.5" … "5" in half-star steps), not a number. The form
 // slices name to 80 characters and review to 1000, and it refuses either
 // when empty after trim. There is no timestamp and no restroom id field.
+//
+// A report is a separate push() under "reports" with restroomId (the
+// refuge- key), reviewId, createdAt (a number), and an optional reason
+// of at most 200 characters. Reports are not readable.
 
 const RATINGS = ["0.5", "1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "5"];
 const RESTROOM = "refuge-42";
@@ -128,5 +132,54 @@ describe("Realtime Database review rules", () => {
     await assertFails(set(created(), { ...validReview, review: "r".repeat(1001) }));
     await assertFails(set(created(), { name: "Ada", rating: "5" }));
     await assertFails(set(push(ref(database(), "other-42")), validReview));
+  });
+});
+
+const validReport = {
+  restroomId: "refuge-42",
+  reviewId: "-Nexistingreview00001",
+  createdAt: 1730000000000,
+  reason: "Spam",
+};
+
+describe("Realtime Database report rules", () => {
+  it("allows creating a report and rejects reading it", async () => {
+    const created = push(ref(database(), "reports"));
+    await assertSucceeds(set(created, validReport));
+    await assertSucceeds(set(push(ref(database(), "reports")), {
+      restroomId: "refuge-42",
+      reviewId: "-Nabc",
+      createdAt: 1730000000000,
+    }));
+    await assertSucceeds(set(push(ref(database(), "reports")), {
+      ...validReport,
+      reason: "r".repeat(200),
+    }));
+    await assertFails(get(ref(database(), "reports")));
+    await assertFails(get(created));
+    await assertFails(get(ref(database(), "/")));
+  });
+
+  it("rejects updates, deletes, extra fields, and values the app does not write", async () => {
+    const path = "reports/-Nreport000000000001";
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await set(ref(context.database(), path), validReport);
+    });
+    await assertFails(get(ref(database(), path)));
+    await assertFails(set(ref(database(), path), { ...validReport, reason: "Changed" }));
+    await assertFails(update(ref(database(), path), { reason: "Changed" }));
+    await assertFails(remove(ref(database(), path)));
+    await assertFails(remove(ref(database(), "reports")));
+    await assertFails(set(ref(database(), "reports"), { "-Nbrandnewreport000001": validReport }));
+    const created = () => push(ref(database(), "reports"));
+    await assertFails(set(created(), { ...validReport, email: "a@b.c" }));
+    await assertFails(set(created(), { ...validReport, reason: "x".repeat(201) }));
+    await assertFails(set(created(), { ...validReport, createdAt: "173" }));
+    await assertFails(set(created(), { ...validReport, restroomId: "42" }));
+    await assertFails(set(created(), { ...validReport, restroomId: "" }));
+    await assertFails(set(created(), { ...validReport, reviewId: "" }));
+    await assertFails(set(created(), { restroomId: "refuge-42", reviewId: "-Nabc" }));
+    await assertFails(set(created(), validReview));
+    await assertFails(set(push(ref(database(), RESTROOM)), validReport));
   });
 });
